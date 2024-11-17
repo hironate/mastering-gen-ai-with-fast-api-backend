@@ -2,12 +2,14 @@ from fastapi import APIRouter, Response
 from pydantic import BaseModel
 from app.utils.response_handler import ResponseHandler
 from loguru import logger
+from app.services.llm.factory import LLMFactory
+from langchain.schema import SystemMessage, HumanMessage
 
 router = APIRouter()
 
 class ChatRequest(BaseModel):
     prompt: str
-    stream: bool = True
+    stream: bool = False
 
 class ChatResponse(BaseModel):
     results: dict
@@ -15,7 +17,19 @@ class ChatResponse(BaseModel):
 @router.post("/", response_model=ChatResponse)
 async def create_chat(request: ChatRequest, response: Response):
     try:
-        ai_response = 'This is a test response'
+        provider = 'openai'
+        # model = 'anthropic.claude-3-5-sonnet-20240620-v1:0'
+        # llm_provider = LLMFactory.get_llm_provider(provider, model)
+        
+        model = 'gpt-4o'
+        llm_provider = LLMFactory.get_llm_provider(provider, model)
+        
+        messages = [
+            SystemMessage(content="You are a helpful tourist guide."),
+            HumanMessage(content=request.prompt)
+        ]
+        
+        ai_response = llm_provider.generate_response(messages)
         return ResponseHandler.success_response(
             data={"response": ai_response},
             message="Chat processed successfully",
