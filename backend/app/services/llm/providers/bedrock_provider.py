@@ -1,0 +1,24 @@
+from langchain_aws import ChatBedrock
+from app.services.llm.base import BaseLLMProvider  # Import the base class
+from typing import List
+from langchain.schema import BaseMessage
+from app.config.settings import settings
+
+class BedrockLLMProvider(BaseLLMProvider):
+    def __init__(self, model_name: str = "anthropic.claude-3-5-sonnet-20240620-v1:0"):
+       self.model = ChatBedrock(
+           model_id=model_name,
+           aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+           aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+           region_name=settings.AWS_REGION,
+           temperature=0.5,
+           max_tokens=4096,
+           streaming=False
+       )
+
+    def generate_response(self, messages: List[BaseMessage]) -> str:
+        response = self.model.invoke(messages)
+        return response.content
+
+    def get_model_name(self) -> str:
+        return f"bedrock-{self.model.model_name}"  # Return the model name
