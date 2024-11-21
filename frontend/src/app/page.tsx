@@ -1,61 +1,91 @@
 'use client';
 
-import { useState } from 'react';
-import { FileUploader } from '@/components/FileUploader';
-import { ChatHistory } from '@/components/ChatHistory';
-import { PromptInput } from '@/components/PromptInput';
-import { sendStreamMessage } from '@/services/chat';
+import { useState, useRef } from 'react';
 
+import { sendMessage, sendStreamMessage } from '@/services/chat';
+import { ContextPanel } from '@/components/chat/ContextPanel';
+import { ChatHistory } from '@/components/chat/ChatHistory';
+import { ChatInput } from '@/components/chat/ChatInput';
+
+// Add ChatMessage interface
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp: Date;
+  timestamp?: Date;
   attachments?: string[];
+  isStreaming?: boolean;
 }
 
-export default function Home() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export default function EnhancedChatInterface() {
+  const [context, setContext] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: 'system',
+      content: 'Hello! How can I assist you today?',
+      timestamp: new Date(),
+    },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSendMessage = async (
-    prompt: string,
-    data: string,
-    files?: File[],
-  ) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleMessageSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
     setIsLoading(true);
 
-    // Add user message to chat
+    // Add user message
     const userMessage: ChatMessage = {
       role: 'user',
-      content: prompt,
+      content: newMessage,
       timestamp: new Date(),
-      attachments: files ? files.map((f) => URL.createObjectURL(f)) : undefined,
+      attachments:
+        files.length > 0 ? files.map((f) => URL.createObjectURL(f)) : undefined,
     };
-
     setMessages((prev) => [...prev, userMessage]);
 
-    // Add an empty assistant message that will be updated with streaming content
+    // Add assistant message with streaming flag
     const assistantMessage: ChatMessage = {
       role: 'assistant',
       content: '',
       timestamp: new Date(),
+      isStreaming: true,
     };
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      await sendStreamMessage(prompt, data, (chunk) => {
+      await sendStreamMessage(newMessage, context, (chunk) => {
+        setIsLoading(false);
         setMessages((prevMessages) => {
           const newMessages = [...prevMessages];
           const lastMessage = newMessages[newMessages.length - 1];
           if (lastMessage?.role === 'assistant') {
             lastMessage.content = chunk;
+            lastMessage.isStreaming = false;
           }
           return newMessages;
         });
       });
+
+      // const response = await sendMessage(newMessage, context, files);
+      // const assistantMessage = response.data.response;
+      // setMessages((prev) => {
+      //   const newMessages = [...prev];
+      //   newMessages[newMessages.length - 1].content = assistantMessage;
+      //   newMessages[newMessages.length - 1].isStreaming = false;
+      //   return newMessages;
+      // });
+      // setIsLoading(false);
     } catch (error) {
       console.error('Error:', error);
-      // Handle error by updating the last message
       setMessages((prev) => {
         const newMessages = [...prev];
         const lastMessage = newMessages[newMessages.length - 1];
@@ -67,37 +97,37 @@ export default function Home() {
       });
     } finally {
       setIsLoading(false);
+      setNewMessage('');
+      setFiles([]);
     }
   };
 
   return (
-    <div className="flex h-screen bg-[#191B1F] text-white">
-      {/* Sidebar */}
-      <div className="w-72 bg-[#212429] border-r border-[#2C2F36]">
-        <div className="p-6">
-          <button className="w-full bg-[#2172E5] hover:bg-[#1966D6] transition-colors text-white rounded-2xl py-3 px-6 font-semibold">
-            New Chat
-          </button>
-        </div>
-        <div className="overflow-y-auto h-[calc(100vh-96px)]">
-          {/* Previous chats list */}
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
+    <div className="flex h-screen bg-gray-100">
+      <ContextPanel
+        context={context}
+        setContext={setContext}
+        files={files}
+        setFiles={setFiles}
+        fileInputRef={fileInputRef}
+        handleFileChange={handleFileChange}
+      />
       <div className="flex-1 flex flex-col">
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <ChatHistory messages={messages} />
-        </div>
-
-        {/* Input Area */}
-        <div className="border-t border-[#2C2F36] p-6 bg-[#212429]">
-          <div className="max-w-5xl mx-auto">
-            <FileUploader />
-            <PromptInput onSubmit={handleSendMessage} isLoading={isLoading} />
-          </div>
-        </div>
+        <header className="bg-white border-b border-gray-200 p-4">
+          <h1 className="text-xl font-bold text-gray-800">Chat</h1>
+        </header>
+        <main className="flex-1 overflow-hidden">
+          <ChatHistory messages={messages} isLoading={isLoading} />
+        </main>
+        <footer className="bg-white border-t border-gray-200 p-4">
+          <ChatInput
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            handleMessageSubmit={handleMessageSubmit}
+            fileInputRef={fileInputRef}
+            isLoading={isLoading}
+          />
+        </footer>
       </div>
     </div>
   );

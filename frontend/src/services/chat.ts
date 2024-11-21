@@ -15,6 +15,7 @@ export const sendMessage = async (
     prompt,
     data,
     files,
+    stream: false,
   });
   return response.data;
 };
@@ -29,6 +30,7 @@ export const sendStreamMessage = async (
     {
       prompt,
       data: data || '',
+      stream: true,
     },
     {
       responseType: 'stream',
