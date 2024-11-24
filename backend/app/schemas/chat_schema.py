@@ -8,7 +8,7 @@ class ChatRequest(BaseModel):
 
     @field_validator('model')
     def validate_model(cls, value):
-        allowed_models = ["bedrock-claude", "another-model"]
+        allowed_models = ["bedrock-claude", "openai-gpt4"]
         if value not in allowed_models:
             raise ValueError(f"Model must be one of {allowed_models}")
         return value

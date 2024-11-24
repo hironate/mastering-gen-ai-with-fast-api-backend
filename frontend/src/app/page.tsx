@@ -29,6 +29,7 @@ export default function EnhancedChatInterface() {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedModel, setSelectedModel] = useState('bedrock-claude');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -62,7 +63,7 @@ export default function EnhancedChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      await sendStreamMessage(newMessage, context, (chunk) => {
+      await sendStreamMessage(newMessage, context, selectedModel, (chunk) => {
         setIsLoading(false);
         setMessages((prevMessages) => {
           const newMessages = [...prevMessages];
@@ -75,7 +76,7 @@ export default function EnhancedChatInterface() {
         });
       });
 
-      // const response = await sendMessage(newMessage, context, files);
+      // const response = await sendMessage(newMessage, context, files, selectedModel);
       // const assistantMessage = response.data.response;
       // setMessages((prev) => {
       //   const newMessages = [...prev];
@@ -111,6 +112,8 @@ export default function EnhancedChatInterface() {
         setFiles={setFiles}
         fileInputRef={fileInputRef}
         handleFileChange={handleFileChange}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
       />
       <div className="flex-1 flex flex-col">
         <header className="bg-white border-b border-gray-200 p-4">

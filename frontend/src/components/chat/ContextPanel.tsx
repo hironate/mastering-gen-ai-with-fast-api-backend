@@ -4,6 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { File, X } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 
 interface ContextPanelProps {
   context: string;
@@ -12,6 +19,8 @@ interface ContextPanelProps {
   setFiles: (files: File[]) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
 }
 
 export function ContextPanel({
@@ -21,17 +30,22 @@ export function ContextPanel({
   setFiles,
   fileInputRef,
   handleFileChange,
+  selectedModel,
+  setSelectedModel,
 }: ContextPanelProps) {
   return (
     <div className="w-96 bg-gray-900 text-white p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-4">Context</h2>
       <Tabs defaultValue="input" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="input" className="text-sm">
             Text
           </TabsTrigger>
           <TabsTrigger value="files" className="text-sm">
             Files
+          </TabsTrigger>
+          <TabsTrigger value="model" className="text-sm">
+            Model
           </TabsTrigger>
         </TabsList>
         <TabsContent value="input">
@@ -59,6 +73,17 @@ export function ContextPanel({
             multiple
             ref={fileInputRef}
           />
+        </TabsContent>
+        <TabsContent value="model">
+          <Select onValueChange={setSelectedModel} defaultValue={selectedModel}>
+            <SelectTrigger className="w-full bg-gray-800 text-white border-gray-700 focus:border-gray-600 focus:ring-gray-600">
+              <SelectValue placeholder="Select Model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="bedrock-claude">Bedrock Claude</SelectItem>
+              <SelectItem value="openai-gpt4">OpenAI GPT-4</SelectItem>
+            </SelectContent>
+          </Select>
         </TabsContent>
       </Tabs>
       {files.length > 0 && (

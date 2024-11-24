@@ -18,6 +18,12 @@ async def create_chat(request: ChatRequest, response: Response):
             HumanMessage(content=f"Context: {request.data}\n\nQuestion: {request.prompt}")
         ]
 
+        if request.stream:
+            return StreamingResponse(
+                llm_provider.generate_stream_response(messages),
+                media_type='text/event-stream'
+            )
+
         ai_response = llm_provider.generate_response(messages)
         return ResponseHandler.success_response(
             data={"response": ai_response},
