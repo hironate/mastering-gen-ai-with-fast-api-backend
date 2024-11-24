@@ -1,34 +1,23 @@
-from fastapi import APIRouter, Response
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Response
+from fastapi.responses import StreamingResponse
+from app.schemas.chat_schema import ChatRequest, ChatResponse
 from app.utils.response_handler import ResponseHandler
-from loguru import logger
 from app.services.llm.factory import LLMFactory
-from langchain.schema import SystemMessage, HumanMessage
+from langchain.schema import HumanMessage
+from loguru import logger
 
 router = APIRouter()
-
-class ChatRequest(BaseModel):
-    prompt: str
-    stream: bool = False
-
-class ChatResponse(BaseModel):
-    results: dict
 
 @router.post("/", response_model=ChatResponse)
 async def create_chat(request: ChatRequest, response: Response):
     try:
-        provider = 'openai'
-        # model = 'anthropic.claude-3-5-sonnet-20240620-v1:0'
-        # llm_provider = LLMFactory.get_llm_provider(provider, model)
-        
-        model = 'gpt-4o'
-        llm_provider = LLMFactory.get_llm_provider(provider, model)
+        provider_id = request.model
+        llm_provider = LLMFactory.get_provider(provider_id)
         
         messages = [
-            SystemMessage(content="You are a helpful tourist guide."),
-            HumanMessage(content=request.prompt)
+            HumanMessage(content=f"Context: {request.data}\n\nQuestion: {request.prompt}")
         ]
-        
+
         ai_response = llm_provider.generate_response(messages)
         return ResponseHandler.success_response(
             data={"response": ai_response},
