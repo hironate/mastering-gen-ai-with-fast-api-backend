@@ -15,6 +15,12 @@ class BedrockLLMProvider(BaseLLMProvider):
            max_tokens=4096,
            streaming=False
        )
+       
+    def generate_stream_response(self, messages: List[BaseMessage]):
+        response = self.model.stream(messages)
+        for chunk in response:
+            if chunk.content is not None:
+                yield chunk.content
 
     def generate_response(self, messages: List[BaseMessage]) -> str:
         response = self.model.invoke(messages)

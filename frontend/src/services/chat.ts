@@ -23,6 +23,7 @@ export const sendMessage = async (
 export const sendStreamMessage = async (
   prompt: string,
   data: string,
+  model: string,
   onChunkReceived: (chunk: string) => void,
 ) => {
   return axios.post(
@@ -30,6 +31,7 @@ export const sendStreamMessage = async (
     {
       prompt,
       data: data || '',
+      model,
       stream: true,
     },
     {
