@@ -81,7 +81,7 @@ export function ContextPanel({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="bedrock-claude">Bedrock Claude</SelectItem>
-              <SelectItem value="openai-gpt4">OpenAI GPT-4</SelectItem>
+              <SelectItem value="openai-gpt-4o">OpenAI GPT-4</SelectItem>
             </SelectContent>
           </Select>
         </TabsContent>

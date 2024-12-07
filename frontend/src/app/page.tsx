@@ -63,18 +63,24 @@ export default function EnhancedChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      await sendStreamMessage(newMessage, context, selectedModel, (chunk) => {
-        setIsLoading(false);
-        setMessages((prevMessages) => {
-          const newMessages = [...prevMessages];
-          const lastMessage = newMessages[newMessages.length - 1];
-          if (lastMessage?.role === 'assistant') {
-            lastMessage.content = chunk;
-            lastMessage.isStreaming = false;
-          }
-          return newMessages;
-        });
-      });
+      await sendStreamMessage(
+        newMessage,
+        context,
+        selectedModel,
+        (chunk: string) => {
+          setIsLoading(false);
+          setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            const lastMessage = newMessages[newMessages.length - 1];
+            if (lastMessage?.role === 'assistant') {
+              lastMessage.content = chunk;
+              lastMessage.isStreaming = false;
+            }
+            return newMessages;
+          });
+        },
+        files,
+      );
 
       // const response = await sendMessage(newMessage, context, files, selectedModel);
       // const assistantMessage = response.data.response;

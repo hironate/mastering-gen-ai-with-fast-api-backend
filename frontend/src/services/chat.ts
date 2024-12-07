@@ -25,25 +25,29 @@ export const sendStreamMessage = async (
   data: string,
   model: string,
   onChunkReceived: (chunk: string) => void,
+  files?: File[],
 ) => {
-  return axios.post(
-    '/chat',
-    {
-      prompt,
-      data: data || '',
-      model,
-      stream: true,
+  const formData = new FormData();
+  formData.append('prompt', prompt);
+  formData.append('data', data || '');
+  formData.append('model', model);
+  formData.append('stream', 'true');
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+  }
+
+  return axios.post('/chat', formData, {
+    responseType: 'stream',
+    headers: {
+      Accept: 'text/event-stream',
+      'Content-Type': 'multipart/form-data',
     },
-    {
-      responseType: 'stream',
-      headers: {
-        Accept: 'text/event-stream',
-        'Content-Type': 'application/json',
-      },
-      onDownloadProgress: (progressEvent) => {
-        const chunk = progressEvent.event.target.response;
-        onChunkReceived(chunk);
-      },
+    onDownloadProgress: (progressEvent) => {
+      const chunk = progressEvent.event.target.response;
+      onChunkReceived(chunk);
     },
-  );
+  });
 };
