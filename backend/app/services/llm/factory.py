@@ -6,7 +6,7 @@ from app.services.llm.base import BaseLLMProvider
 class LLMFactory:
     _providers: Dict[str, Type[BaseLLMProvider]] = {
         "bedrock-claude": BedrockLLMProvider,
-        "openai-gpt4": OpenAILLMProvider
+        "openai-gpt-4o": OpenAILLMProvider
     }
 
     @classmethod
@@ -18,7 +18,7 @@ class LLMFactory:
         
         if provider_id == "bedrock-claude":
             return provider_class()
-        elif provider_id == "openai-gpt4":
-            return provider_class(model_name="gpt-4")
+        elif provider_id == "openai-gpt-4o":
+            return provider_class(model_name="gpt-4o")
         
         return provider_class()
