@@ -36,7 +36,7 @@ class ChatRequest(BaseModel):
     @field_validator('files')
     def validate_file_type(cls, files):
         if files:
-            allowed_types = ['image/jpeg', 'image/png']
+            allowed_types = ['image/jpeg', 'image/png', 'text/plain', 'application/pdf']
             for file in files:
                 content_type = file.content_type
                 if content_type not in allowed_types:

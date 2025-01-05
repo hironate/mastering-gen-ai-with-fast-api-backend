@@ -105,7 +105,6 @@ export default function EnhancedChatInterface() {
     } finally {
       setIsLoading(false);
       setNewMessage('');
-      setFiles([]);
     }
   };
 
