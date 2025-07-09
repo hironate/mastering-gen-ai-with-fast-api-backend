@@ -24,17 +24,17 @@ class BhaSha {
     [key: string]: { [key: string]: { standalone: string; matra: string } };
   } = {
     hindi: {
-      a: { standalone: 'अ', matra: '' }, // inherent, no matra needed
-      aa: { standalone: 'आ', matra: 'ा' },
+      a: { standalone: 'अ', matra: '' },
       A: { standalone: 'आ', matra: 'ा' },
+      aa: { standalone: 'आ', matra: 'ा' },
       AA: { standalone: 'आ', matra: 'ा' },
       i: { standalone: 'इ', matra: 'ि' },
-      ii: { standalone: 'ई', matra: 'ी' },
       I: { standalone: 'ई', matra: 'ी' },
+      ii: { standalone: 'ई', matra: 'ी' },
       II: { standalone: 'ई', matra: 'ी' },
       u: { standalone: 'उ', matra: 'ु' },
-      uu: { standalone: 'ऊ', matra: 'ू' },
       U: { standalone: 'ऊ', matra: 'ू' },
+      uu: { standalone: 'ऊ', matra: 'ू' },
       UU: { standalone: 'ऊ', matra: 'ू' },
       e: { standalone: 'ए', matra: 'े' },
       E: { standalone: 'ए', matra: 'े' },
@@ -43,6 +43,8 @@ class BhaSha {
       O: { standalone: 'ओ', matra: 'ो' },
       au: { standalone: 'औ', matra: 'ौ' },
       ri: { standalone: 'ऋ', matra: 'ृ' },
+      Ri: { standalone: 'ऋ', matra: 'ृ' },
+      Ru: { standalone: 'ऋ', matra: 'ृ' },
       lri: { standalone: 'ऌ', matra: 'ॢ' },
       ay: { standalone: 'अय', matra: 'य' },
     },
@@ -55,17 +57,28 @@ class BhaSha {
       I: { standalone: 'ઈ', matra: 'ી' },
       ii: { standalone: 'ઈ', matra: 'ી' },
       II: { standalone: 'ઈ', matra: 'ી' },
+      ee: { standalone: 'ઈ', matra: 'ી' },
       u: { standalone: 'ઉ', matra: 'ુ' },
       U: { standalone: 'ઊ', matra: 'ૂ' },
       uu: { standalone: 'ઊ', matra: 'ૂ' },
       UU: { standalone: 'ઊ', matra: 'ૂ' },
+      oo: { standalone: 'ઊ', matra: 'ૂ' },
       e: { standalone: 'એ', matra: 'ે' },
-      E: { standalone: 'એ', matra: 'ે' },
+      E: { standalone: 'ઍ', matra: 'ૅ' }, // Chandra E
       ai: { standalone: 'ઐ', matra: 'ૈ' },
       o: { standalone: 'ઓ', matra: 'ો' },
-      O: { standalone: 'ઓ', matra: 'ો' },
+      O: { standalone: 'ઑ', matra: 'ૉ' }, // Chandra O
       au: { standalone: 'ઔ', matra: 'ૌ' },
+      ou: { standalone: 'ઔ', matra: 'ૌ' },
       ri: { standalone: 'ઋ', matra: 'ૃ' },
+      Ri: { standalone: 'ઋ', matra: 'ૃ' },
+      Ru: { standalone: 'ઋ', matra: 'ૃ' },
+      RI: { standalone: 'ૠ', matra: 'ૄ' },
+      RU: { standalone: 'ૠ', matra: 'ૄ' },
+      'Lu-': { standalone: 'ઌ', matra: 'ૢ' },
+      'Li-': { standalone: 'ઌ', matra: 'ૢ' },
+      'LU-': { standalone: 'ૡ', matra: 'ૣ' },
+      'LI-': { standalone: 'ૡ', matra: 'ૣ' },
       lri: { standalone: 'ઌ', matra: 'ૢ' },
       ay: { standalone: 'અય', matra: 'ય' },
     },
@@ -185,6 +198,7 @@ class BhaSha {
 
       // Palatals (ch-varga)
       ch: 'ચ',
+      C: 'ચ',
       Ch: 'છ',
       CH: 'છ',
       chh: 'છ',
@@ -194,6 +208,8 @@ class BhaSha {
       jh: 'ઝ',
       Jh: 'ઝ',
       JH: 'ઝ',
+      z: 'ઝ',
+      Z: 'ઝ',
       ny: 'ઞ',
       NY: 'ઞ',
 
@@ -215,6 +231,8 @@ class BhaSha {
       ph: 'ફ',
       Ph: 'ફ',
       PH: 'ફ',
+      f: 'ફ',
+      F: 'ફ',
       b: 'બ',
       B: 'બ',
       bh: 'ભ',
@@ -237,11 +255,11 @@ class BhaSha {
       sh: 'શ',
       Sh: 'શ',
       SH: 'શ',
+      S: 'શ',
       shh: 'ષ',
       Shh: 'ષ',
       SHH: 'ષ',
       s: 'સ',
-      S: 'સ',
       h: 'હ',
       H: 'હ',
 
@@ -250,10 +268,9 @@ class BhaSha {
       X: 'ક્ષ',
       ksh: 'ક્ષ',
       KSH: 'ક્ષ',
-      z: 'ઝ',
-      Z: 'ઝ',
-      f: 'ફ',
-      F: 'ફ',
+      kSh: 'ક્ષ',
+      Gn: 'જ્ઞ',
+      Gy: 'જ્ઞ',
     },
   };
 
@@ -290,22 +307,56 @@ class BhaSha {
     hindi: {
       M: 'ं',
       '.n': 'ं',
+      '.m': 'ं',
+      aM: 'ं',
+      'M-': 'ँ',
+      'aM-': 'ँ',
       H: 'ः',
-      '.h': 'ః',
+      '.h': 'ः',
+      ':': 'ः',
+      aH: 'ः',
+      'a:': 'ः',
       '.': '।',
+      '|': '।',
+      '|-': '|',
       '..': '॥',
+      '||': '॥',
       OM: 'ॐ',
       AUM: 'ॐ',
+      '*': '्',
+      '*-': '*',
+      ':-': ':',
+      Rs: '₹',
+      'Rs-': '૱',
     },
     gujarati: {
       M: 'ં',
       '.n': 'ં',
+      '.m': 'ં',
+      aM: 'ં',
+      'M-': 'ઁ',
+      'aM-': 'ઁ',
       H: 'ઃ',
       '.h': 'ઃ',
+      ':': 'ઃ',
+      aH: 'ઃ',
+      'a:': 'ઃ',
       '.': '।',
+      '|': '।',
+      '|-': '|',
       '..': '॥',
+      '||': '॥',
       OM: 'ૐ',
       AUM: 'ૐ',
+      '*': '઼',
+      '*-': '*', // nukta
+      '.a': 'ઽ', // avagrah
+      ':-': ':',
+      Rs: '₹',
+      'Rs-': '૱',
+      '+-': '卐', // swastika
+      '--': '‍', // ZWJ (Zero Width Joiner)
+      '---': '‌', // ZWNJ (Zero Width Non Joiner)
     },
   };
 
@@ -317,17 +368,32 @@ class BhaSha {
 
   // Vowel patterns for recognition (ordered by length, longest first)
   private vowelPatterns = [
+    'LU-',
+    'LI-',
+    'Lu-',
+    'Li-',
+    'aM-',
+    'aH',
+    'a:',
     'lri',
     'uu',
     'UU',
+    'oo',
     'aa',
     'AA',
     'ii',
     'II',
+    'ee',
     'ai',
     'au',
+    'ou',
     'ay',
     'ri',
+    'Ri',
+    'Ru',
+    'RI',
+    'RU',
+    'aM',
     'u',
     'U',
     'a',
@@ -349,10 +415,13 @@ class BhaSha {
     'SHH',
     'ksh',
     'KSH',
+    'kSh',
     'khh',
     'KHH',
     'ghh',
     'GHH',
+    'Gn',
+    'Gy',
     'ch',
     'Ch',
     'CH',
@@ -422,6 +491,37 @@ class BhaSha {
     'Q',
     'f',
     'F',
+    'C',
+  ];
+
+  // Special character patterns (longest first)
+  private specialPatterns = [
+    'aM-',
+    'aH',
+    'a:',
+    '---',
+    '--',
+    '+-',
+    'Rs-',
+    'Rs',
+    'OM',
+    'AUM',
+    '*-',
+    ':-',
+    '|-',
+    '||',
+    '..',
+    '.a',
+    '.n',
+    '.m',
+    '.h',
+    'M-',
+    'M',
+    'H',
+    '.',
+    '|',
+    ':',
+    '*',
   ];
 
   supports(lang: string): boolean {
@@ -481,56 +581,78 @@ class BhaSha {
     return this.specialChars[this.currentLanguage]?.[pattern] || null;
   }
 
-  // Main transliteration function with simplified rules
+  // Main transliteration function with comprehensive rules
   transliterateText(text: string): string {
     if (this.currentLanguage === 'english') return text;
 
     let result = '';
     let i = 0;
+    let hyphenBreak = false; // Track if we just processed a hyphen break
 
     while (i < text.length) {
       let found = false;
 
-      // Handle 'M' after vowels (anusvara)
-      if (text[i] === 'M') {
-        const prevChar = result[result.length - 1];
-        const anusvaraMark = this.currentLanguage === 'hindi' ? 'ं' : 'ં';
+      // Handle hyphen-based rules first
+      if (text[i] === '-') {
+        // Count consecutive hyphens
+        let hyphenCount = 0;
+        let j = i;
+        while (j < text.length && text[j] === '-') {
+          hyphenCount++;
+          j++;
+        }
 
-        if (
-          prevChar &&
-          // Gujarati vowel matras
-          (['ા', 'િ', 'ી', 'ુ', 'ૂ', 'ે', 'ૈ', 'ો', 'ૌ', 'ૃ'].includes(
-            prevChar,
-          ) ||
-            // Hindi vowel matras
-            ['ा', 'ि', 'ी', 'ु', 'ू', 'े', 'ै', 'ो', 'ौ', 'ृ'].includes(
-              prevChar,
-            ) ||
-            // Standalone vowels
-            ['અ', 'આ', 'ઇ', 'ઈ', 'ઉ', 'ઊ', 'એ', 'ઐ', 'ઓ', 'ઔ'].includes(
-              prevChar,
-            ) ||
-            ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'].includes(
-              prevChar,
-            ) ||
-            // End of word
-            i === text.length - 1 ||
-            /[\s.,!?;:]/.test(text[i + 1]))
-        ) {
-          result += anusvaraMark;
-          i++;
+        if (hyphenCount === 3) {
+          // Triple hyphen --- for ZWJ (Zero Width Joiner)
+          result += this.specialChars[this.currentLanguage]['---'] || '\u200D';
+          i += 3;
           found = true;
+        } else if (hyphenCount === 2) {
+          // Double hyphen -- for dead consonant or ZWNJ
+          if (i > 0) {
+            const prevPattern = this.findConsonantPattern(text, i - 1, -1);
+            if (prevPattern) {
+              // Add virama (dead consonant)
+              result += this.virama[this.currentLanguage];
+              i += 2;
+              found = true;
+            } else {
+              // ZWNJ (Zero Width Non-Joiner)
+              result +=
+                this.specialChars[this.currentLanguage]['--'] || '\u200C';
+              i += 2;
+              found = true;
+            }
+          } else {
+            // ZWNJ at start
+            result += this.specialChars[this.currentLanguage]['--'] || '\u200C';
+            i += 2;
+            found = true;
+          }
+        } else if (hyphenCount === 1) {
+          // Single hyphen for vowel separation or dead consonant at word end
+          if (i === text.length - 1) {
+            // Hyphen at end - add virama
+            result += this.virama[this.currentLanguage];
+            i++;
+            found = true;
+          } else {
+            // Hyphen in middle - this breaks vowel combinations
+            // Set flag to prevent compound vowel formation
+            hyphenBreak = true;
+            i++;
+            found = true;
+          }
         }
       }
 
       if (!found) {
-        // First, try consonant patterns (longest first)
-        for (const pattern of this.consonantPatterns) {
+        // Try special patterns first (longest first)
+        for (const pattern of this.specialPatterns) {
           if (i + pattern.length <= text.length) {
             const substr = text.substring(i, i + pattern.length);
 
             if (substr === pattern) {
-              // Check for special characters first
               const specialChar = this.getSpecialChar(pattern);
               if (specialChar) {
                 result += specialChar;
@@ -538,7 +660,35 @@ class BhaSha {
                 found = true;
                 break;
               }
+            }
+          }
+        }
+      }
 
+      if (!found) {
+        // Context-sensitive n/m to anusvara conversion
+        if ((text[i] === 'n' || text[i] === 'm') && i + 1 < text.length) {
+          const nextChar = text[i + 1];
+          const shouldConvertToAnusvara = this.shouldConvertToAnusvara(
+            text[i],
+            nextChar,
+          );
+
+          if (shouldConvertToAnusvara) {
+            result += this.currentLanguage === 'hindi' ? 'ं' : 'ં';
+            i++;
+            found = true;
+          }
+        }
+      }
+
+      if (!found) {
+        // Try consonant patterns first (longest first)
+        for (const pattern of this.consonantPatterns) {
+          if (i + pattern.length <= text.length) {
+            const substr = text.substring(i, i + pattern.length);
+
+            if (substr === pattern) {
               // Check for numbers
               const number = this.getNumber(pattern);
               if (number) {
@@ -557,34 +707,40 @@ class BhaSha {
                 // Look for following vowel (longest first)
                 let vowelProcessed = false;
 
-                for (const vowelPattern of this.vowelPatterns) {
-                  if (i + vowelPattern.length <= text.length) {
-                    const vowelSubstr = text.substring(
-                      i,
-                      i + vowelPattern.length,
-                    );
+                // If hyphen break, treat next vowel as standalone
+                if (hyphenBreak) {
+                  hyphenBreak = false; // Reset flag
+                  // Don't process vowel as matra, let it be processed as standalone
+                } else {
+                  for (const vowelPattern of this.vowelPatterns) {
+                    if (i + vowelPattern.length <= text.length) {
+                      const vowelSubstr = text.substring(
+                        i,
+                        i + vowelPattern.length,
+                      );
 
-                    if (vowelSubstr === vowelPattern) {
-                      if (vowelPattern === 'a') {
-                        // Inherent 'a', skip it
-                        i += vowelPattern.length;
-                        vowelProcessed = true;
-                        break;
-                      } else {
-                        // Add vowel matra
-                        const vowelMatra = this.getVowel(vowelPattern, false);
-                        if (vowelMatra) {
-                          result += vowelMatra;
+                      if (vowelSubstr === vowelPattern) {
+                        if (vowelPattern === 'a') {
+                          // Inherent 'a', skip it
                           i += vowelPattern.length;
                           vowelProcessed = true;
                           break;
+                        } else {
+                          // Add vowel matra
+                          const vowelMatra = this.getVowel(vowelPattern, false);
+                          if (vowelMatra) {
+                            result += vowelMatra;
+                            i += vowelPattern.length;
+                            vowelProcessed = true;
+                            break;
+                          }
                         }
                       }
                     }
                   }
                 }
 
-                // If no vowel found, check for conjunct consonant (even for pre-formed conjuncts)
+                // If no vowel found, check for conjunct consonant
                 if (!vowelProcessed) {
                   // Check if next character(s) form a consonant
                   let nextIsConsonant = false;
@@ -622,81 +778,93 @@ class BhaSha {
           }
         }
 
-        // If no consonant found, try vowel patterns for standalone vowels (only at word boundaries)
+        // If no consonant found, try vowel patterns for standalone vowels
         if (!found) {
           const isWordStart = i === 0 || /[\s.,!?;:()]/.test(text[i - 1]);
           const isWordEnd =
             i === text.length - 1 || /[\s.,!?;:()]/.test(text[i + 1]);
+          const prevChar = result[result.length - 1];
+
+          // Check if previous character is a vowel matra or standalone vowel
+          const afterVowel =
+            prevChar &&
+            // Gujarati vowel matras and standalone vowels
+            ([
+              'ા',
+              'િ',
+              'ી',
+              'ુ',
+              'ૂ',
+              'ે',
+              'ૈ',
+              'ો',
+              'ૌ',
+              'ૃ',
+              'ૄ',
+              'ૢ',
+              'ૣ',
+              'ૅ',
+              'ૉ',
+              'અ',
+              'આ',
+              'ઇ',
+              'ઈ',
+              'ઉ',
+              'ઊ',
+              'એ',
+              'ઍ',
+              'ઐ',
+              'ઓ',
+              'ઑ',
+              'ઔ',
+              'ઋ',
+              'ૠ',
+              'ઌ',
+              'ૡ',
+            ].includes(prevChar) ||
+              // Hindi vowel matras and standalone vowels
+              [
+                'ा',
+                'ि',
+                'ी',
+                'ु',
+                'ू',
+                'े',
+                'ै',
+                'ो',
+                'ौ',
+                'ृ',
+                'अ',
+                'आ',
+                'इ',
+                'ई',
+                'उ',
+                'ऊ',
+                'ए',
+                'ऐ',
+                'ओ',
+                'औ',
+                'ऋ',
+                'ऌ',
+              ].includes(prevChar));
 
           // Skip word-ending 'a' as it represents inherent vowel
           if (text[i] === 'a' && isWordEnd) {
             i++;
             found = true;
-          } else {
-            // Check if previous character is a vowel matra or standalone vowel
-            const prevChar = result[result.length - 1];
-            const afterVowel =
-              prevChar &&
-              // Gujarati vowel matras and standalone vowels
-              ([
-                'ા',
-                'િ',
-                'ી',
-                'ુ',
-                'ૂ',
-                'ે',
-                'ૈ',
-                'ો',
-                'ૌ',
-                'ૃ',
-                'અ',
-                'આ',
-                'ઇ',
-                'ઈ',
-                'ઉ',
-                'ઊ',
-                'એ',
-                'ઐ',
-                'ઓ',
-                'ઔ',
-              ].includes(prevChar) ||
-                // Hindi vowel matras and standalone vowels
-                [
-                  'ा',
-                  'ि',
-                  'ी',
-                  'ु',
-                  'ू',
-                  'े',
-                  'ै',
-                  'ो',
-                  'ौ',
-                  'ृ',
-                  'अ',
-                  'आ',
-                  'इ',
-                  'ई',
-                  'उ',
-                  'ऊ',
-                  'ए',
-                  'ऐ',
-                  'ओ',
-                  'औ',
-                ].includes(prevChar));
+          } else if (isWordStart || afterVowel || hyphenBreak) {
+            for (const pattern of this.vowelPatterns) {
+              if (i + pattern.length <= text.length) {
+                const substr = text.substring(i, i + pattern.length);
 
-            if (isWordStart || afterVowel) {
-              for (const pattern of this.vowelPatterns) {
-                if (i + pattern.length <= text.length) {
-                  const substr = text.substring(i, i + pattern.length);
-
-                  if (substr === pattern) {
-                    const standaloneVowel = this.getVowel(pattern, true);
-                    if (standaloneVowel) {
-                      result += standaloneVowel;
-                      i += pattern.length;
-                      found = true;
-                      break;
-                    }
+                if (substr === pattern) {
+                  const standaloneVowel = this.getVowel(pattern, true);
+                  if (standaloneVowel) {
+                    result += standaloneVowel;
+                    i += pattern.length;
+                    hyphenBreak = false; // Reset flag after processing
+                    found = true;
+                    break;
                   }
                 }
               }
@@ -709,8 +877,10 @@ class BhaSha {
         // Handle unknown characters
         if (text[i] === ' ') {
           result += ' ';
+          hyphenBreak = false; // Reset on word boundary
         } else if (/[.,!?;:()]/.test(text[i])) {
           result += text[i];
+          hyphenBreak = false; // Reset on punctuation
         } else {
           // Unknown character, keep as is
           result += text[i];
@@ -720,6 +890,39 @@ class BhaSha {
     }
 
     return result;
+  }
+
+  // Helper function to determine if n/m should convert to anusvara
+  private shouldConvertToAnusvara(char: string, nextChar: string): boolean {
+    if (char === 'n') {
+      // n converts to anusvara before k, kh, g, gh, ch, chh, j, jh, T, Th, D, Dh, t, th, d, dh, l, sh, Sh, s
+      return /^(k|kh|g|gh|ch|chh|j|jh|T|Th|D|Dh|t|th|d|dh|l|sh|Sh|s|C|S)/.test(
+        nextChar,
+      );
+    } else if (char === 'm') {
+      // m converts to anusvara before p, ph, b, bh, v
+      return /^(p|ph|b|bh|v)/.test(nextChar);
+    }
+    return false;
+  }
+
+  // Helper function to find consonant pattern backwards
+  private findConsonantPattern(
+    text: string,
+    endIndex: number,
+    direction: number,
+  ): string | null {
+    for (const pattern of this.consonantPatterns) {
+      const startIndex =
+        direction > 0 ? endIndex : endIndex - pattern.length + 1;
+      if (startIndex >= 0 && startIndex + pattern.length <= text.length) {
+        const substr = text.substring(startIndex, startIndex + pattern.length);
+        if (substr === pattern && this.isConsonant(pattern)) {
+          return pattern;
+        }
+      }
+    }
+    return null;
   }
 
   processInput(char: string): { valid: boolean; output: string } {
@@ -762,8 +965,9 @@ export default function TransliterationPage() {
   };
 
   const exampleTexts = {
-    hindi: 'eTale, x for ksha, z for za. namaste!',
-    gujarati: 'eTale, x for ksha, z for jha. namaste!',
+    hindi: 'namaste, kem chho? x for ksha, z for za. prash--n, vid---yaa',
+    gujarati:
+      'namaste, kem chho? x for ksha, z for jha. da-u, tha-i, daMDavat-',
   };
 
   const loadExample = () => {
@@ -917,6 +1121,15 @@ export default function TransliterationPage() {
                 <div>
                   <code>namaste</code> → नमस्ते (automatic स्त)
                 </div>
+                <div>
+                  <strong>Hyphen Rules:</strong>
+                </div>
+                <div>
+                  <code>prash--n</code> → प्रश्‍न (dead consonant)
+                </div>
+                <div>
+                  <code>vid---yaa</code> → विद्‌या (ZWJ)
+                </div>
               </div>
             </div>
             <div>
@@ -944,6 +1157,18 @@ export default function TransliterationPage() {
                 </div>
                 <div>
                   <code>eTale</code> → એટલે, <code>kem chho</code> → કેમ છો
+                </div>
+                <div>
+                  <strong>Hyphen Rules:</strong>
+                </div>
+                <div>
+                  <code>da-u</code> → દઉ (prevents દૌ)
+                </div>
+                <div>
+                  <code>tha-i</code> → થઇ (prevents થૈ)
+                </div>
+                <div>
+                  <code>daMDavat-</code> → દંડવત્ (virama at end)
                 </div>
               </div>
             </div>
