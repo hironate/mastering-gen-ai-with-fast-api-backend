@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, FileText, LucideIcon } from 'lucide-react';
+import { MessageCircle, FileText, Languages, LucideIcon } from 'lucide-react';
 
 interface POC {
   title: string;
@@ -32,6 +32,15 @@ export default function HomePage() {
       icon: FileText,
       status: 'coming-soon',
       tags: ['Document Processing', 'Analysis', 'Summarization'],
+    },
+    {
+      title: 'Indian Language Transliteration POC',
+      description:
+        'Write in Indian languages with ease using phonetic transliteration. Type in English and get real-time conversion to Hindi, Gujarati, and other Indian scripts.',
+      href: '/transliteration',
+      icon: Languages,
+      status: 'active',
+      tags: ['Transliteration', 'Hindi', 'Gujarati', 'Indian Languages'],
     },
   ];
 
