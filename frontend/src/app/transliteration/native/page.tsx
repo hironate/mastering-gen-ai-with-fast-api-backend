@@ -1,185 +1,32 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Copy, RotateCcw, Type } from 'lucide-react';
 import Link from 'next/link';
-import { BhaSha } from '@bhashaime/core';
 import {
   NativeTransliterationInput,
   NativeTransliterationTextarea,
+  NativeTransliterationRef,
 } from '@/components/NativeTransliterationInput';
 
 export default function NativeTransliterationPage() {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [bhaShaInstance] = useState(() => new BhaSha());
-  const [displayText, setDisplayText] = useState('');
-  const [rawInput, setRawInput] = useState('');
-
-  // Initialize BhaSha for Gujarati
-  useEffect(() => {
-    bhaShaInstance.setLanguage('gujarati');
-  }, [bhaShaInstance]);
-
-  // Set cursor position after display text changes
-  useEffect(() => {
-    if (textareaRef.current) {
-      // For now, let's just set cursor to the end of the text
-      // This is a temporary fix - we'll implement proper cursor mapping later
-      const newCursorPos = displayText.length;
-      textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
-    }
-  }, [displayText]);
-
-  // Handle paste events
-  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
-    const pastedText = event.clipboardData.getData('text');
-
-    const newRawInput = rawInput + pastedText;
-    setRawInput(newRawInput);
-    const transliterated = bhaShaInstance.transliterateText(newRawInput);
-    setDisplayText(transliterated);
-  };
-
-  // Handle input events as fallback
-  const handleInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    const target = event.target as HTMLTextAreaElement;
-    const value = target.value;
-
-    console.log('Input event:', {
-      value,
-      valueLength: value.length,
-      rawInput,
-      rawInputLength: rawInput.length,
-    });
-
-    // Only handle if this is not from our keydown handler
-    if (value !== displayText) {
-      console.log(
-        'Input event detected - this should not happen with our keydown handler',
-      );
-    }
-  };
-
-  // Handle composition events (IME input)
-  const handleCompositionStart = (
-    event: React.CompositionEvent<HTMLTextAreaElement>,
-  ) => {
-    console.log('Composition start:', event.data);
-  };
-
-  const handleCompositionUpdate = (
-    event: React.CompositionEvent<HTMLTextAreaElement>,
-  ) => {
-    console.log('Composition update:', event.data);
-  };
-
-  const handleCompositionEnd = (
-    event: React.CompositionEvent<HTMLTextAreaElement>,
-  ) => {
-    console.log('Composition end:', event.data);
-    // Handle IME input completion
-    const compositionText = event.data;
-
-    if (compositionText) {
-      const newRawInput = rawInput + compositionText;
-      setRawInput(newRawInput);
-      const transliterated = bhaShaInstance.transliterateText(newRawInput);
-      setDisplayText(transliterated);
-    }
-  };
-
-  // Handle keydown to capture the actual English input
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Debug logging
-    console.log('KeyDown:', {
-      key: event.key,
-      code: event.code,
-      keyCode: event.keyCode,
-      which: event.which,
-      ctrlKey: event.ctrlKey,
-      metaKey: event.metaKey,
-      shiftKey: event.shiftKey,
-      altKey: event.altKey,
-    });
-
-    // Handle special keys
-    if (event.key === 'Backspace') {
-      if (rawInput.length > 0) {
-        const newRawInput = rawInput.slice(0, -1);
-        setRawInput(newRawInput);
-        const transliterated = bhaShaInstance.transliterateText(newRawInput);
-        setDisplayText(transliterated);
-        event.preventDefault();
-      }
-    } else if (event.key === 'Delete') {
-      // Delete from end for now
-      if (rawInput.length > 0) {
-        const newRawInput = rawInput.slice(0, -1);
-        setRawInput(newRawInput);
-        const transliterated = bhaShaInstance.transliterateText(newRawInput);
-        setDisplayText(transliterated);
-        event.preventDefault();
-      }
-    } else if (event.key === 'Enter') {
-      // Handle Enter key
-      const newRawInput = rawInput + '\n';
-      setRawInput(newRawInput);
-      const transliterated = bhaShaInstance.transliterateText(newRawInput);
-      setDisplayText(transliterated);
-      event.preventDefault();
-    } else if (event.key === 'Tab') {
-      // Handle Tab key
-      const newRawInput = rawInput + '\t';
-      setRawInput(newRawInput);
-      const transliterated = bhaShaInstance.transliterateText(newRawInput);
-      setDisplayText(transliterated);
-      event.preventDefault();
-    } else if (
-      event.key.length === 1 &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
-      // Handle printable characters (but not when modifier keys are pressed)
-      const newRawInput = rawInput + event.key;
-      setRawInput(newRawInput);
-      const transliterated = bhaShaInstance.transliterateText(newRawInput);
-      setDisplayText(transliterated);
-      event.preventDefault();
-    }
-  };
-
-  // Handle copy
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(displayText);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
+  const inputRef = useRef<NativeTransliterationRef>(null);
+  const textareaRef = useRef<NativeTransliterationRef>(null);
 
   // Handle clear
   const handleClear = () => {
-    setDisplayText('');
-    setRawInput('');
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    inputRef.current?.clear();
+    textareaRef.current?.clear();
   };
 
   // Load example text
   const loadExample = () => {
     const example =
       'namaste, kem chho? x for ksha, Gn for gya. prash--n, vid---yaa';
-    setRawInput(example);
-    setDisplayText(bhaShaInstance.transliterateText(example));
-
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    inputRef.current?.setValue(example);
+    textareaRef.current?.setValue(example);
   };
 
   return (
@@ -203,11 +50,10 @@ export default function NativeTransliterationPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Native Gujarati Typing
+                    Flexible Native Gujarati Typing
                   </h1>
                   <p className="text-sm text-gray-600">
-                    Type in English, see Gujarati instantly - feel like native
-                    typing
+                    Multiple ways to implement native transliteration
                   </p>
                 </div>
               </div>
@@ -217,90 +63,223 @@ export default function NativeTransliterationPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Controls */}
         <Card className="p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              Native Gujarati Input (Reusable Components)
+              Flexible Transliteration Components
             </h2>
+            <div className="flex space-x-2">
+              <Button onClick={loadExample} variant="outline" size="sm">
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Load Example
+              </Button>
+              <Button onClick={handleClear} variant="outline" size="sm">
+                Clear All
+              </Button>
+            </div>
           </div>
           <div className="text-sm text-gray-600">
             <p>
-              Below are reusable input and textarea components with native
-              transliteration.
+              Below are different ways to implement native transliteration with
+              varying levels of flexibility and control.
             </p>
           </div>
         </Card>
 
-        {/* Input Example */}
+        {/* Method 1: Pre-built Components */}
         <Card className="p-6 mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Input Example
+            Method 1: Pre-built Components (Easiest)
           </h3>
-          <NativeTransliterationInput
-            language="gujarati"
-            placeholder="Type in Gujarati..."
-            showDebugInfo
-            className="w-full p-2 border border-gray-300 rounded-md text-lg"
-          />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                NativeTransliterationInput
+              </label>
+              <NativeTransliterationInput
+                ref={inputRef}
+                language="gujarati"
+                placeholder="Type in Gujarati..."
+                showDebugInfo
+                className="w-full p-2 border border-gray-300 rounded-md text-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                NativeTransliterationTextarea
+              </label>
+              <NativeTransliterationTextarea
+                ref={textareaRef}
+                language="gujarati"
+                rows={3}
+                placeholder="Type in Gujarati..."
+                showDebugInfo
+                className="w-full p-2 border border-gray-300 rounded-md text-lg"
+              />
+            </div>
+          </div>
         </Card>
 
-        {/* Textarea Example */}
+        {/* Method 2: Custom Implementation Example */}
         <Card className="p-6 mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Textarea Example
+            Method 2: Custom Implementation (Most Flexible)
           </h3>
-          <NativeTransliterationTextarea
-            language="gujarati"
-            rows={4}
-            placeholder="Type in Gujarati..."
-            showDebugInfo
-            className="w-full p-2 border border-gray-300 rounded-md text-lg"
-          />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Custom Implementation Example
+              </label>
+              <CustomTransliterationExample />
+            </div>
+          </div>
         </Card>
 
         {/* Instructions */}
         <Card className="p-6 mt-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            How It Works
+            How to Choose the Right Method
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Key Features:</h4>
+              <h4 className="font-medium text-gray-900 mb-2">
+                Method 1: Pre-built Components
+              </h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Real-time transliteration as you type</li>
-                <li>• Only Gujarati text is displayed in the input/textarea</li>
-                <li>• Native DOM event handling for instant response</li>
-                <li>• No separate input/output areas</li>
-                <li>• Reusable as input or textarea</li>
+                <li>• Quickest to implement</li>
+                <li>• Standard input/textarea behavior</li>
+                <li>• Good for most use cases</li>
+                <li>• Limited customization</li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-gray-900 mb-2">
-                Example Typing:
+                Method 2: Custom Implementation
               </h4>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div>
-                  <code>namaste</code> → નમસ્તે
-                </div>
-                <div>
-                  <code>kem chho</code> → કેમ છો
-                </div>
-                <div>
-                  <code>x</code> → ક્ષ
-                </div>
-                <div>
-                  <code>Gn</code> → જ્ઞ
-                </div>
-                <div>
-                  <code>prash--n</code> → પ્રશ્‍ન
-                </div>
-              </div>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Maximum flexibility</li>
+                <li>• Use with any input/textarea</li>
+                <li>• Full control over styling</li>
+                <li>• Can integrate with existing forms</li>
+              </ul>
             </div>
           </div>
         </Card>
       </main>
+    </div>
+  );
+}
+
+// Example component showing custom implementation
+function CustomTransliterationExample() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [rawInput, setRawInput] = useState('');
+  const [displayText, setDisplayText] = useState('');
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Backspace') {
+      if (rawInput.length > 0) {
+        const newRawInput = rawInput.slice(0, -1);
+        setRawInput(newRawInput);
+        // In a real implementation, you would use the BhaSha library here
+        setDisplayText(newRawInput); // Simplified for demo
+        event.preventDefault();
+      }
+    } else if (
+      event.key.length === 1 &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      const newRawInput = rawInput + event.key;
+      setRawInput(newRawInput);
+      // In a real implementation, you would use the BhaSha library here
+      setDisplayText(newRawInput); // Simplified for demo
+      event.preventDefault();
+    }
+  };
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData('text');
+    const newRawInput = rawInput + pastedText;
+    setRawInput(newRawInput);
+    setDisplayText(newRawInput); // Simplified for demo
+  };
+
+  const clear = () => {
+    setRawInput('');
+    setDisplayText('');
+  };
+
+  const setValue = (value: string) => {
+    setRawInput(value);
+    setDisplayText(value); // Simplified for demo
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Custom Input Implementation
+        </label>
+        <input
+          ref={inputRef}
+          value={displayText}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          placeholder="Type in Gujarati..."
+          className="w-full p-2 border border-gray-300 rounded-md text-lg"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Raw Input (English)
+          </label>
+          <div className="p-2 bg-gray-100 rounded border text-sm font-mono">
+            {rawInput || '(empty)'}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Display Text (Gujarati)
+          </label>
+          <div className="p-2 bg-gray-100 rounded border text-sm">
+            {displayText || '(empty)'}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex space-x-2">
+        <Button
+          onClick={() => setValue('namaste kem chho')}
+          variant="outline"
+          size="sm"
+        >
+          Set Example
+        </Button>
+        <Button onClick={clear} variant="outline" size="sm">
+          Clear
+        </Button>
+        <Button
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(displayText);
+            } catch (err) {
+              console.error('Failed to copy text: ', err);
+            }
+          }}
+          variant="outline"
+          size="sm"
+        >
+          <Copy className="w-4 h-4 mr-2" />
+          Copy
+        </Button>
+      </div>
     </div>
   );
 }

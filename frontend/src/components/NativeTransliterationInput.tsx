@@ -1,18 +1,17 @@
-import React, { useRef, useEffect, forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import {
   useNativeTransliteration,
   UseNativeTransliterationOptions,
 } from '@/hooks/useNativeTransliteration';
 
 // Extended interfaces for ref methods
-interface NativeTransliterationInputRef extends HTMLInputElement {
+export interface NativeTransliterationRef {
   clear: () => void;
   setRawInput: (input: string) => void;
-}
-
-interface NativeTransliterationTextareaRef extends HTMLTextAreaElement {
-  clear: () => void;
-  setRawInput: (input: string) => void;
+  setValue: (value: string) => void;
+  getValue: () => string;
+  focus: () => void;
+  blur: () => void;
 }
 
 // Base interface for common props
@@ -33,59 +32,55 @@ interface NativeTransliterationInputProps
     BaseTransliterationProps {}
 
 export const NativeTransliterationInput = forwardRef<
-  NativeTransliterationInputRef,
+  NativeTransliterationRef,
   NativeTransliterationInputProps
 >((props, ref) => {
   const {
     language = 'gujarati',
     showDebugInfo = false,
     onTransliterationChange,
+    initialValue,
     className = '',
     ...restProps
   } = props;
 
-  const internalRef = useRef<NativeTransliterationInputRef>(null);
-  const finalRef = (ref ||
-    internalRef) as React.RefObject<NativeTransliterationInputRef>;
-
   const {
     rawInput,
     displayText,
-    handleKeyDown,
-    handlePaste,
-    handleCompositionEnd,
-    setRawInput,
-    clear,
+    handlers,
+    methods,
+    ref: elementRef,
   } = useNativeTransliteration({
     language,
     onTransliterationChange,
+    initialValue,
   });
 
-  // Set cursor position after display text changes
-  useEffect(() => {
-    if (finalRef.current) {
-      const newCursorPos = displayText.length;
-      finalRef.current.setSelectionRange(newCursorPos, newCursorPos);
-    }
-  }, [displayText, finalRef]);
+  // Cast the ref to the correct type for input
+  const inputRef = elementRef as React.RefObject<HTMLInputElement>;
 
   // Expose methods on ref
-  useEffect(() => {
-    if (finalRef.current) {
-      (finalRef.current as NativeTransliterationInputRef).clear = clear;
-      (finalRef.current as NativeTransliterationInputRef).setRawInput =
-        setRawInput;
-    }
-  }, [clear, setRawInput, finalRef]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      clear: methods.clear,
+      setRawInput: methods.setRawInput,
+      setValue: methods.setValue,
+      getValue: methods.getValue,
+      focus: () => inputRef.current?.focus(),
+      blur: () => inputRef.current?.blur(),
+    }),
+    [methods, inputRef],
+  );
 
   return (
     <div className="native-transliteration-wrapper">
       <input
-        ref={finalRef}
+        ref={inputRef}
         value={displayText}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onCompositionEnd={handleCompositionEnd}
+        onKeyDown={handlers.onKeyDown}
+        onPaste={handlers.onPaste}
+        onCompositionEnd={handlers.onCompositionEnd}
         className={`native-transliteration-input ${className}`}
         {...restProps}
       />
@@ -115,58 +110,55 @@ interface NativeTransliterationTextareaProps
     BaseTransliterationProps {}
 
 export const NativeTransliterationTextarea = forwardRef<
-  HTMLTextAreaElement,
+  NativeTransliterationRef,
   NativeTransliterationTextareaProps
 >((props, ref) => {
   const {
     language = 'gujarati',
     showDebugInfo = false,
     onTransliterationChange,
+    initialValue,
     className = '',
     ...restProps
   } = props;
 
-  const internalRef = useRef<HTMLTextAreaElement>(null);
-  const finalRef = (ref || internalRef) as React.RefObject<HTMLTextAreaElement>;
-
   const {
     rawInput,
     displayText,
-    handleKeyDown,
-    handlePaste,
-    handleCompositionEnd,
-    setRawInput,
-    clear,
+    handlers,
+    methods,
+    ref: elementRef,
   } = useNativeTransliteration({
     language,
     onTransliterationChange,
+    initialValue,
   });
 
-  // Set cursor position after display text changes
-  useEffect(() => {
-    if (finalRef.current) {
-      const newCursorPos = displayText.length;
-      finalRef.current.setSelectionRange(newCursorPos, newCursorPos);
-    }
-  }, [displayText, finalRef]);
+  // Cast the ref to the correct type for textarea
+  const textareaRef = elementRef as React.RefObject<HTMLTextAreaElement>;
 
   // Expose methods on ref
-  useEffect(() => {
-    if (finalRef.current) {
-      (finalRef.current as NativeTransliterationTextareaRef).clear = clear;
-      (finalRef.current as NativeTransliterationTextareaRef).setRawInput =
-        setRawInput;
-    }
-  }, [clear, setRawInput, finalRef]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      clear: methods.clear,
+      setRawInput: methods.setRawInput,
+      setValue: methods.setValue,
+      getValue: methods.getValue,
+      focus: () => textareaRef.current?.focus(),
+      blur: () => textareaRef.current?.blur(),
+    }),
+    [methods, textareaRef],
+  );
 
   return (
     <div className="native-transliteration-wrapper">
       <textarea
-        ref={finalRef}
+        ref={textareaRef}
         value={displayText}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onCompositionEnd={handleCompositionEnd}
+        onKeyDown={handlers.onKeyDown}
+        onPaste={handlers.onPaste}
+        onCompositionEnd={handlers.onCompositionEnd}
         className={`native-transliteration-textarea ${className}`}
         {...restProps}
       />
@@ -186,3 +178,63 @@ export const NativeTransliterationTextarea = forwardRef<
 });
 
 NativeTransliterationTextarea.displayName = 'NativeTransliterationTextarea';
+
+// Hook-based component for maximum flexibility
+export interface UseTransliterationElementProps
+  extends BaseTransliterationProps {
+  elementRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement>;
+}
+
+export function useTransliterationElement(
+  props: UseTransliterationElementProps,
+) {
+  const {
+    language = 'gujarati',
+    showDebugInfo = false,
+    onTransliterationChange,
+    initialValue,
+    elementRef: externalRef,
+  } = props;
+
+  const {
+    rawInput,
+    displayText,
+    handlers,
+    methods,
+    ref: internalRef,
+  } = useNativeTransliteration({
+    language,
+    onTransliterationChange,
+    initialValue,
+  });
+
+  const elementRef = externalRef || internalRef;
+
+  const elementProps = {
+    value: displayText,
+    onKeyDown: handlers.onKeyDown,
+    onPaste: handlers.onPaste,
+    onCompositionEnd: handlers.onCompositionEnd,
+    ref: elementRef,
+  };
+
+  const debugInfo =
+    showDebugInfo && process.env.NODE_ENV === 'development' ? (
+      <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+        <div>
+          <strong>Debug Info:</strong>
+        </div>
+        <div>Raw Input: {rawInput}</div>
+        <div>Display Text: {displayText}</div>
+        <div>Language: {language}</div>
+      </div>
+    ) : null;
+
+  return {
+    elementProps,
+    methods,
+    debugInfo,
+    rawInput,
+    displayText,
+  };
+}

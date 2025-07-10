@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BhaSha, SupportedLanguage } from '@bhashaime/core';
 
 export interface UseNativeTransliterationOptions {
@@ -7,33 +7,49 @@ export interface UseNativeTransliterationOptions {
     rawInput: string,
     transliteratedText: string,
   ) => void;
+  initialValue?: string;
 }
 
 interface UseNativeTransliterationReturn {
   rawInput: string;
   displayText: string;
   bhaShaInstance: BhaSha;
-  handleKeyDown: (
-    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => void;
-  handlePaste: (
-    event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => void;
-  handleCompositionEnd: (
-    event: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => void;
-  setRawInput: (input: string) => void;
-  clear: () => void;
+  handlers: {
+    onKeyDown: (
+      event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => void;
+    onPaste: (
+      event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => void;
+    onCompositionEnd: (
+      event: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => void;
+    onInput?: (
+      event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => void;
+  };
+  methods: {
+    setRawInput: (input: string) => void;
+    clear: () => void;
+    setValue: (value: string) => void;
+    getValue: () => string;
+  };
+  ref: React.RefObject<HTMLInputElement | HTMLTextAreaElement>;
 }
 
 export function useNativeTransliteration(
   options: UseNativeTransliterationOptions = {},
 ): UseNativeTransliterationReturn {
-  const { language = 'gujarati', onTransliterationChange } = options;
+  const {
+    language = 'gujarati',
+    onTransliterationChange,
+    initialValue = '',
+  } = options;
 
   const [bhaShaInstance] = useState(() => new BhaSha());
-  const [rawInput, setRawInput] = useState('');
+  const [rawInput, setRawInput] = useState(initialValue);
   const [displayText, setDisplayText] = useState('');
+  const elementRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   // Initialize BhaSha with the specified language
   useEffect(() => {
@@ -49,7 +65,10 @@ export function useNativeTransliteration(
 
   // Set cursor position after display text changes
   useEffect(() => {
-    // This will be handled by the component using this hook
+    if (elementRef.current) {
+      const newCursorPos = displayText.length;
+      elementRef.current.setSelectionRange(newCursorPos, newCursorPos);
+    }
   }, [displayText]);
 
   const handleKeyDown = useCallback(
@@ -118,14 +137,29 @@ export function useNativeTransliteration(
     setRawInput('');
   }, []);
 
+  const setValue = useCallback((value: string) => {
+    setRawInput(value);
+  }, []);
+
+  const getValue = useCallback(() => {
+    return displayText;
+  }, [displayText]);
+
   return {
     rawInput,
     displayText,
     bhaShaInstance,
-    handleKeyDown,
-    handlePaste,
-    handleCompositionEnd,
-    setRawInput,
-    clear,
+    handlers: {
+      onKeyDown: handleKeyDown,
+      onPaste: handlePaste,
+      onCompositionEnd: handleCompositionEnd,
+    },
+    methods: {
+      setRawInput,
+      clear,
+      setValue,
+      getValue,
+    },
+    ref: elementRef,
   };
 }
