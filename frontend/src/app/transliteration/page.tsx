@@ -110,6 +110,11 @@ export default function TransliterationPage() {
                   Plugin Demo
                 </Button>
               </Link>
+              <Link href="/transliteration/native">
+                <Button variant="outline" size="sm">
+                  Native Typing
+                </Button>
+              </Link>
 
               <Button onClick={loadExample} variant="outline" size="sm">
                 Load Example
