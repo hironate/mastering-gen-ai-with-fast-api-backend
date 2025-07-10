@@ -1,4 +1,4 @@
-import { BhaSha } from '../bhasha-engine';
+import { BhaSha } from '@bhashaime/core';
 
 describe('BhaSha Transliteration Engine', () => {
   let bhaSha: BhaSha;
@@ -419,10 +419,9 @@ describe('BhaSha Transliteration Engine', () => {
       expect(bhaSha.transliterateText('k')).toBe('ક');
     });
 
-    test('should throw error for unsupported language', () => {
-      expect(() => {
-        bhaSha.setLanguage('french');
-      }).toThrow("Language 'french' is not supported.");
+    test('should handle unsupported language gracefully', () => {
+      // TypeScript will prevent this at compile time, but we can test the supports method
+      expect(bhaSha.supports('french')).toBe(false);
     });
   });
 

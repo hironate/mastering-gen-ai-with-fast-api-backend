@@ -11,19 +11,18 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Languages, Copy, RotateCcw, ArrowLeft, TestTube } from 'lucide-react';
+import { Languages, Copy, RotateCcw, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { BhaSha, TestResult, TestResults } from './bhasha-engine';
+import { BhaSha, SupportedLanguage } from '@bhashaime/core';
 
-// The BhaSha engine is now imported from the separate engine file
+// The BhaSha engine is now imported from the npm package
 
 export default function TransliterationPage() {
   const [bhaShaInstance] = useState(() => new BhaSha());
-  const [selectedLanguage, setSelectedLanguage] = useState('gujarati');
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<SupportedLanguage>('gujarati');
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
-  const [showTests, setShowTests] = useState(false);
-  const [testResults, setTestResults] = useState<TestResults | null>(null);
 
   useEffect(() => {
     bhaShaInstance.setLanguage(selectedLanguage);
@@ -35,7 +34,7 @@ export default function TransliterationPage() {
   }, [inputText, selectedLanguage, bhaShaInstance]);
 
   const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language);
+    setSelectedLanguage(language as SupportedLanguage);
   };
 
   const handleCopy = async () => {
@@ -49,12 +48,6 @@ export default function TransliterationPage() {
   const handleClear = () => {
     setInputText('');
     setOutputText('');
-  };
-
-  const runTests = () => {
-    const results = bhaShaInstance.runTests();
-    setTestResults(results);
-    setShowTests(true);
   };
 
   const exampleTexts = {
@@ -112,10 +105,12 @@ export default function TransliterationPage() {
               Language Settings
             </h2>
             <div className="flex space-x-2">
-              <Button onClick={runTests} variant="outline" size="sm">
-                <TestTube className="w-4 h-4 mr-1" />
-                Run Tests
-              </Button>
+              <Link href="/transliteration/demo">
+                <Button variant="outline" size="sm">
+                  Plugin Demo
+                </Button>
+              </Link>
+
               <Button onClick={loadExample} variant="outline" size="sm">
                 Load Example
               </Button>
@@ -143,61 +138,6 @@ export default function TransliterationPage() {
             </Select>
           </div>
         </Card>
-
-        {/* Test Results */}
-        {showTests && testResults && (
-          <Card className="p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Test Results
-              </h3>
-              <div className="flex space-x-4 text-sm">
-                <span className="text-green-600 font-medium">
-                  ✓ {testResults.passed} Passed
-                </span>
-                <span className="text-red-600 font-medium">
-                  ✗ {testResults.failed} Failed
-                </span>
-              </div>
-            </div>
-            <div className="max-h-60 overflow-y-auto space-y-2">
-              {testResults.results.map((result: TestResult, index: number) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-md border text-sm ${
-                    result.success
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{result.description}</span>
-                    <span
-                      className={
-                        result.success ? 'text-green-600' : 'text-red-600'
-                      }
-                    >
-                      {result.success ? '✓' : '✗'}
-                    </span>
-                  </div>
-                  <div className="mt-1">
-                    <span className="font-mono">
-                      &quot;{result.input}&quot;
-                    </span>
-                    <span className="mx-2">→</span>
-                    <span className="font-mono">{result.actual}</span>
-                    {!result.success && (
-                      <div className="text-red-600 mt-1">
-                        Expected:{' '}
-                        <span className="font-mono">{result.expected}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
 
         {/* Transliteration Interface */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
