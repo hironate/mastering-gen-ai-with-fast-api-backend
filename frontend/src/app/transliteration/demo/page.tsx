@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Copy, RotateCcw } from 'lucide-react';
@@ -26,13 +26,27 @@ export default function DemoPage() {
     output: hookOutput,
     setInput: setHookInput,
     clear: clearHook,
+    setLanguage: setHookLanguage, // <-- get setLanguage from the hook
   } = useBhaShaIME({
     language: selectedLanguage,
     autoTransliterate: true,
     onTransliterationChange: (input, output) => {
-      console.log('Hook transliteration:', { input, output });
+      console.log('Hook transliteration:', {
+        input,
+        output,
+        language: selectedLanguage,
+      });
     },
   });
+
+  // Update hook language when selectedLanguage changes
+  useEffect(() => {
+    setHookLanguage(selectedLanguage);
+  }, [selectedLanguage, setHookLanguage]);
+
+  // Debug language changes
+  console.log('Current language:', selectedLanguage);
+  console.log('Hook output:', hookOutput);
 
   const handleCopy = async (text: string) => {
     try {
@@ -108,6 +122,16 @@ export default function DemoPage() {
                 <RotateCcw className="w-4 h-4 mr-1" />
                 Clear All
               </Button>
+              <Button
+                onClick={() => {
+                  console.log('Testing Hindi transliteration...');
+                  setHookInput('namaste');
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Test Hindi
+              </Button>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -120,14 +144,20 @@ export default function DemoPage() {
                   selectedLanguage === 'gujarati' ? 'default' : 'outline'
                 }
                 size="sm"
-                onClick={() => setSelectedLanguage('gujarati')}
+                onClick={() => {
+                  console.log('Switching to Gujarati');
+                  setSelectedLanguage('gujarati');
+                }}
               >
                 Gujarati
               </Button>
               <Button
                 variant={selectedLanguage === 'hindi' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedLanguage('hindi')}
+                onClick={() => {
+                  console.log('Switching to Hindi');
+                  setSelectedLanguage('hindi');
+                }}
               >
                 Hindi
               </Button>
@@ -188,6 +218,7 @@ export default function DemoPage() {
               2. BhaShaInput Component
             </h3>
             <BhaShaInput
+              key={selectedLanguage} // force re-mount on language change
               ref={inputRef}
               language={selectedLanguage}
               placeholder="Type in English..."
@@ -207,6 +238,7 @@ export default function DemoPage() {
               3. BhaShaTextarea Component
             </h3>
             <BhaShaTextarea
+              key={selectedLanguage} // force re-mount on language change
               ref={textareaRef}
               language={selectedLanguage}
               placeholder="Type a paragraph in English..."
