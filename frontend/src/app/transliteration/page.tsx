@@ -115,6 +115,11 @@ export default function TransliterationPage() {
                   Native Typing
                 </Button>
               </Link>
+              <Link href="/transliteration/simple-demo">
+                <Button variant="outline" size="sm">
+                  Simple Demo
+                </Button>
+              </Link>
 
               <Button onClick={loadExample} variant="outline" size="sm">
                 Load Example

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BhaShaIME Injector Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        h1, h2 {
+            color: #0d1117;
+        }
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .controls {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+        .controls button {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-gujarati { background-color: #2563eb; color: white; }
+        .btn-gujarati:hover { background-color: #1d4ed8; }
+        .btn-hindi { background-color: #16a34a; color: white; }
+        .btn-hindi:hover { background-color: #15803d; }
+        .note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>BhaShaIME Global Injector Test Page</h1>
+        <p>This page tests the page-wide transliteration script. All text and textarea fields below should be automatically enabled for transliteration.</p>
+        
+        <div class="controls">
+            <h2>Controls</h2>
+            <p>Use these buttons to change the active transliteration language globally.</p>
+            <button class="btn-gujarati" onclick="window.bhashaIME.setLanguage('gujarati')">Set to Gujarati (ગુજરાતી)</button>
+            <button class="btn-hindi" onclick="window.bhashaIME.setLanguage('hindi')">Set to Hindi (हिंदी)</button>
+        </div>
+
+        <form onsubmit="event.preventDefault(); alert('Form submitted!');">
+            <h2>Sample Form</h2>
+            
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="Type your name phonetically...">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="E.g., 'ramesh' becomes 'રમેશ'...">
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Password fields are ignored for privacy.">
+
+            <label for="bio">Biography / Comments:</label>
+            <textarea id="bio" name="bio" placeholder="Type a long paragraph here..."></textarea>
+            
+             <label for="feedback">Feedback (another textarea):</label>
+            <textarea id="feedback" name="feedback" placeholder="This should also work seamlessly."></textarea>
+        </form>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> For this page to work, you must first compile <code>frontend/src/lib/bhasha-ime-injector.ts</code> into a JavaScript file and place it in the <code>frontend/public</code> directory. For example, if you compile it to <code>bhasha-ime-injector.js</code>, you can include it with the script tag below.
+    </div>
+    
+    <!-- 
+      IMPORTANT: You need to build `bhasha-ime-injector.ts` to a JS file 
+      and place it in the `public` folder.
+    -->
+    <script src="bhasha-ime-injector.bundle.js" defer></script>
+
+</body>
+</html> 
