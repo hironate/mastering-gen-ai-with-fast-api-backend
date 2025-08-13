@@ -2,6 +2,8 @@
 
 This repository is dedicated to a YouTube video series focused on mastering generative AI application development. The project is built using FastAPI and demonstrates how to create a robust API for interacting with generative AI models.
 
+In Langgraph Branch
+
 ## Features
 
 - FastAPI framework for building APIs
