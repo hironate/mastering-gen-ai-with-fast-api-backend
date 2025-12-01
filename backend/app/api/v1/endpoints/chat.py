@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from app.schemas.chat_schema import ChatRequest, ChatResponse
-from app.utils.response_handler import ResponseHandler
 from app.services.llm.factory import LLMFactory
 from loguru import logger
 from app.services.prompts.chat import prepare_chat_prompt
@@ -31,19 +30,9 @@ async def create_chat(
             )
 
         ai_response = llm_provider.generate_response(messages)
-        return ResponseHandler.success_response(
-            data={"response": ai_response},
-            message="Chat processed successfully",
-            code=200
-        )
+        return {"response": ai_response}
     except ValueError as ve:
         logger.error(f"Error in chat endpoint: {str(ve)}")
-        return ResponseHandler.error_response(
-            message=str(ve),
-            code=400
-        )
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        return ResponseHandler.error_response(
-            message=str(e),
-            code=500
-        )
+        raise HTTPException(status_code=500, detail=str(e))
