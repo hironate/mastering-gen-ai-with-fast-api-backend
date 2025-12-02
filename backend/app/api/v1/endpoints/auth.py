@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.exceptions import CustomHTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -7,7 +9,8 @@ from app.db.session import get_db
 from app.services.internal import AuthService
 from app.schemas.auth_schema import (
     UserCreate, LoginRequest, LoginResponse,
-    LogoutRequest, UserResponse, LoginSessionResponse
+    LogoutRequest, UserResponse, LoginSessionResponse,
+    PasswordUpdateRequest
 )
 from app.core.security import verify_token
 router = APIRouter()
@@ -41,6 +44,27 @@ async def signup(
     except Exception as e:
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
+@router.put("/update-password", response_model=UserResponse)
+async def update_password(
+    password_update_request: PasswordUpdateRequest,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        auth_service = AuthService(db)
+        user = auth_service.update_password(
+            current_user.email, 
+            password_update_request.old_password, 
+            password_update_request.new_password
+        )
+        return user
+    except CustomHTTPException as e:
+        raise e
+    except Exception as e:
+        logging.error(f"Error updating password: {e}")
+        raise CustomHTTPException(status_code=500, detail="Internal server error")
+
+
 @router.post("/login", response_model=LoginResponse)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -71,6 +95,7 @@ async def logout(
     db: Session = Depends(get_db)
 ):
     """Logout user."""
+    print(f"+++++++++++{logout_data}-----------{current_user}+++++++++++++++")
     try:
         auth_service = AuthService(db)
         result = auth_service.logout(logout_data.token, current_user.email)

@@ -36,6 +36,16 @@ class UserRepository:
             self.db.rollback()
             raise ValueError("Email already exists")
 
+    def update_password(self, user_id: int, new_password_hash: str) -> User:
+        """Update user's password hash."""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
+        user.password_hash = new_password_hash
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
     def update_last_login(self, user_id: int) -> bool:
         """Update user's last login timestamp."""
         from datetime import datetime

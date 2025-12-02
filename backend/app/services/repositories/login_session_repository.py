@@ -35,6 +35,13 @@ class LoginSessionRepository:
             LoginSession.user_id == user_id
         ).order_by(LoginSession.login_at.desc()).all()
 
+    def get_last_active_session(self, user_id: str) -> Optional[LoginSession]:
+        """Get the last active login session for a user."""
+        return self.db.query(LoginSession).filter(
+            LoginSession.user_id == user_id,
+            LoginSession.logout_at.is_(None)
+        ).order_by(LoginSession.login_at.desc()).first()
+
     def get_session_by_id(self, session_id: str) -> Optional[LoginSession]:
         """Get session by ID."""
         return self.db.query(LoginSession).filter(LoginSession.id == session_id).first()

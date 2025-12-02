@@ -51,5 +51,6 @@ class LoginSessionResponse(BaseModel):
     status: str
     failure_reason: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+class PasswordUpdateRequest(BaseModel):
+    old_password: str
+    new_password: str

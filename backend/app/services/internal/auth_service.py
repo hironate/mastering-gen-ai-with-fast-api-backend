@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.services.repositories import UserRepository, LoginSessionRepository
-from app.schemas.auth_schema import UserCreate, LoginRequest, UserResponse, LoginResponse
+from app.schemas.auth_schema import UserCreate, LoginRequest, UserResponse, LoginResponse, PasswordUpdateRequest
 from app.core.exceptions import CustomHTTPException
 
 class AuthService:
@@ -59,7 +59,7 @@ class AuthService:
 
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
-
+        print(f"+++++++++++++++++++++++++++++::{access_token}::+++++++++++++++++++++++++++++++++++++++")
         return LoginResponse(
             user=UserResponse.from_orm(user),
             access_token=access_token
@@ -67,9 +67,28 @@ class AuthService:
 
     def logout(self, token: str, user_email: str) -> dict:
         """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
-        # In a production system, you'd want to blacklist the token
-        # For now, we'll just return success
+        user = self.user_repo.get_user_by_email(user_email)
+        if not user:
+            raise CustomHTTPException(status_code=404, detail="User not found")
+        
+        last_session = self.session_repo.get_last_active_session(user.id)
+        print(last_session)
+        if last_session:
+            self.session_repo.update_logout_time(last_session.id)
         return {"message": "Logged out successfully"}
+
+    def update_password(self, email: str, old_password: str, new_password: str) -> UserResponse:
+        """Update user's password."""
+        user = self.user_repo.get_user_by_email(email)
+        if not user:
+            raise CustomHTTPException(status_code=404, detail="User not found")
+        
+        if not verify_password(old_password, user.password_hash):
+            raise CustomHTTPException(status_code=401, detail="Invalid old password")
+        
+        new_password_hash = get_password_hash(new_password)
+        updated_user = self.user_repo.update_password(user.id, new_password_hash)
+        return UserResponse.from_orm(updated_user)
 
     def get_user_sessions(self, user_email: str) -> list:
         """Get login sessions for a user."""
