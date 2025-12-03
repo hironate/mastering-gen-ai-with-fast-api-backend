@@ -65,7 +65,7 @@ class AuthService:
             access_token=access_token
         )
 
-    def logout(self, token: str, user_email: str) -> dict:
+    def logout(self, user_email: str) -> dict:
         """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
         user = self.user_repo.get_user_by_email(user_email)
         if not user:

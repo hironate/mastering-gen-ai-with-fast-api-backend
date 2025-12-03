@@ -38,10 +38,6 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# Logout schemas
-class LogoutRequest(BaseModel):
-    token: str
-
 # Session schemas
 class LoginSessionResponse(BaseModel):
     id: int

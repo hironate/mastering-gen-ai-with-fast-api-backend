@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.internal import AuthService
 from app.schemas.auth_schema import (
-    UserCreate, LoginRequest, LoginResponse,
-    LogoutRequest, UserResponse, LoginSessionResponse,
+    UserCreate, LoginRequest, LoginResponse, UserResponse, LoginSessionResponse,
     PasswordUpdateRequest
 )
 from app.core.security import verify_token
@@ -90,15 +89,13 @@ async def login(
 
 @router.post("/logout")
 async def logout(
-    logout_data: LogoutRequest,
     current_user: UserResponse = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Logout user."""
-    print(f"+++++++++++{logout_data}-----------{current_user}+++++++++++++++")
     try:
         auth_service = AuthService(db)
-        result = auth_service.logout(logout_data.token, current_user.email)
+        result = auth_service.logout(current_user.email)
         return result
     except CustomHTTPException as e:
         raise e
