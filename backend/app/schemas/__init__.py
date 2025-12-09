@@ -6,6 +6,7 @@ from .auth_schema import (
     PasswordUpdateRequest
 )
 from .chat_schema import ChatRequest, ChatResponse
+from .presigned_url_schema import PresignedUploadRequest, PresignedUploadResponse, PresignedDownloadRequest, PresignedDownloadResponse
 
 __all__ = [
     "UserBase", "UserCreate", "UserResponse",
@@ -13,5 +14,9 @@ __all__ = [
     "LoginRequest", "LoginResponse",
     "LoginSessionResponse",
     "ChatRequest", "ChatResponse",
-    "PasswordUpdateRequest"
+    "PasswordUpdateRequest",
+    "PresignedUploadRequest",
+    "PresignedUploadResponse",
+    "PresignedDownloadRequest",
+    "PresignedDownloadResponse"
 ]

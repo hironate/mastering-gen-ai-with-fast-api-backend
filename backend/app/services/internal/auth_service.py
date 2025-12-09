@@ -14,7 +14,7 @@ class AuthService:
         self.session_repo = LoginSessionRepository(db)
 
     def signup(self, user_data: UserCreate) -> UserResponse:
-        """Create a new user account."""
+        #"""Create a new user account."""
         # Check if user already exists
         existing_user = self.user_repo.get_user_by_email(user_data.email)
         if existing_user:
@@ -31,9 +31,8 @@ class AuthService:
             raise CustomHTTPException(status_code=400, detail=str(e))
 
     def login(self, login_data: LoginRequest) -> LoginResponse:
-        """Authenticate user and create login session."""
+        #"""Authenticate user and create login session."""
         # Get user by email
-        print(f"******************************************************{login_data}*******************************************")
         user = self.user_repo.get_user_by_email(login_data.email)
         if not user:
             # Create failed session
@@ -59,14 +58,11 @@ class AuthService:
 
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
-        print(f"+++++++++++++++++++++++++++++::{access_token}::+++++++++++++++++++++++++++++++++++++++")
-        return LoginResponse(
-            user=UserResponse.from_orm(user),
-            access_token=access_token
-        )
+
+        return LoginResponse(user=UserResponse.from_orm(user),access_token=access_token)
 
     def logout(self, user_email: str) -> dict:
-        """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
+        #"""Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
         user = self.user_repo.get_user_by_email(user_email)
         if not user:
             raise CustomHTTPException(status_code=404, detail="User not found")
@@ -78,7 +74,7 @@ class AuthService:
         return {"message": "Logged out successfully"}
 
     def update_password(self, email: str, old_password: str, new_password: str) -> UserResponse:
-        """Update user's password."""
+        #"""Update user's password."""
         user = self.user_repo.get_user_by_email(email)
         if not user:
             raise CustomHTTPException(status_code=404, detail="User not found")
@@ -91,7 +87,7 @@ class AuthService:
         return UserResponse.from_orm(updated_user)
 
     def get_user_sessions(self, user_email: str) -> list:
-        """Get login sessions for a user."""
+        #"""Get login sessions for a user."""
         user = self.user_repo.get_user_by_email(user_email)
         if not user:
             raise CustomHTTPException(status_code=404, detail="User not found")
@@ -100,7 +96,7 @@ class AuthService:
         return [session for session in sessions]
 
     def get_current_user(self, email: str) -> Optional[UserResponse]:
-        """Get current authenticated user."""
+        #"""Get current authenticated user."""
         user = self.user_repo.get_user_by_email(email)
         if user:
             return UserResponse.from_orm(user)

@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     AWS_ACCESS_KEY_ID: str = "your_default_access_key_id"
     AWS_SECRET_ACCESS_KEY: str
     AWS_REGION: str = "us-east-1"
+    AWS_S3_BUCKET_NAME: str = "your-s3-bucket-name"
+    AWS_ENDPOINT_URL: str
     
     class Config:
         case_sensitive = True
