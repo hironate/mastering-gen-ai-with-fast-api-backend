@@ -36,7 +36,7 @@ class AuthService:
         user = self.user_repo.get_user_by_email(login_data.email)
         if not user:
             # Create failed session
-            self.session_repo.create_session('00000000-0000-0000-0000-000000000000', 'failed', 'User not found')
+            self.session_repo.create_session('00', 'failed', 'User not found')
             raise CustomHTTPException(status_code=401, detail="Invalid email or password")
 
         # Verify password
