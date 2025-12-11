@@ -85,4 +85,5 @@ dependencies = [
     "uvicorn==0.32.0",
     "yarl==1.17.1",
     "psycopg2-binary>=2.9.11",
+    "email-validator>=2.3.0",
 ]
