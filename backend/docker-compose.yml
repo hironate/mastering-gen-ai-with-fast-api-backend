@@ -20,6 +20,14 @@ backend:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
       - BUCKET_NAME=${BUCKET_NAME:-}
       - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL:-}
+      - DATABASE_URL=postgresql://postgres:Raj1234@localhost:5432/test_db
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=test_db
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-Raj1234}
+    depends_on:
+      - localhost
       
     networks:
       - edentify-network
