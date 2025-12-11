@@ -21,8 +21,6 @@ backend:
       - BUCKET_NAME=${BUCKET_NAME:-}
       - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL:-}
       - DATABASE_URL=${DATABASE_URL:-}
-    depends_on:
-      - localhost
       
     networks:
       - edentify-network
