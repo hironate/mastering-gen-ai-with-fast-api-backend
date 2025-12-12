@@ -1,4 +1,5 @@
-backend:
+services:
+  backend:
     build: .
     command: >
       sh -c "
@@ -21,6 +22,7 @@ backend:
       - BUCKET_NAME=${BUCKET_NAME:-}
       - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL:-}
       - DATABASE_URL=${DATABASE_URL:-}
-      
-    networks:
-      - edentify-network
+
+volumes:
+  uv-cache:
+
