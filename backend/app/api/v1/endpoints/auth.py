@@ -1,31 +1,15 @@
-import logging
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.core.exceptions import CustomHTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.services.internal import AuthService
-from app.schemas.auth_schema import UserCreate, LoginRequest, LoginResponse, UserResponse, LoginSessionResponse, PasswordUpdateRequest
+from app.schemas.auth_schema import UserCreate, LoginRequest, LoginResponse, UserResponse, LoginSessionResponse, PasswordUpdateRequest, AuthenticatedUser
 
-from app.core.security import verify_token
+from app.middlewares.auth_middleware import auth_dependency
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
-
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    #Dependency to get current authenticated user.
-    email = verify_token(token)
-    if email is None:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-
-    auth_service = AuthService(db)
-    user = auth_service.get_current_user(email)
-    if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-
-    return user
 
 @router.post("/signup", response_model=UserResponse)
 async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -39,12 +23,13 @@ async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     except Exception as e:
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/update-password", response_model=UserResponse)
-async def update_password(password_update_request: PasswordUpdateRequest, 
-                            current_user: UserResponse = Depends(get_current_user), 
+@router.put("/update-password", response_model=UserResponse, dependencies=[Depends(auth_dependency)])
+async def update_password(request: Request,
+                            password_update_request: PasswordUpdateRequest, 
                             db: Session = Depends(get_db)):
     #Update user's password.
     try:
+        current_user = request.state.user
         auth_service = AuthService(db)
         user = auth_service.update_password(current_user.email, 
                                             password_update_request.old_password, 
@@ -54,7 +39,6 @@ async def update_password(password_update_request: PasswordUpdateRequest,
     except CustomHTTPException as e:
         raise e
     except Exception as e:
-        logging.error(f"Error updating password: {e}")
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
 
@@ -75,10 +59,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = D
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
 
-@router.post("/logout")
-async def logout(current_user: UserResponse = Depends(get_current_user),db: Session = Depends(get_db)):
+@router.post("/logout", dependencies=[Depends(auth_dependency)])
+async def logout(request: Request, db: Session = Depends(get_db)):
+
     #"""Logout user."""
     try:
+        current_user = request.state.user
         auth_service = AuthService(db)
         result = auth_service.logout(current_user.email)
         return result
@@ -87,12 +73,13 @@ async def logout(current_user: UserResponse = Depends(get_current_user),db: Sess
     except Exception as e:
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/sessions", response_model=list[LoginSessionResponse])
-async def get_user_sessions(current_user: UserResponse = Depends(get_current_user),
+@router.get("/sessions", response_model=list[LoginSessionResponse], dependencies=[Depends(auth_dependency)])
+async def get_user_sessions(request: Request,
                             db: Session = Depends(get_db)):
 
     #"""Get login sessions for the authenticated user."""
     try:
+        current_user = request.state.user
         auth_service = AuthService(db)
         sessions = auth_service.get_user_sessions(current_user.email)
         return sessions

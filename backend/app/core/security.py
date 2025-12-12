@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
 from app.config.settings import settings
 
 # Password hashing context
@@ -28,16 +29,30 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm="HS256")
     return encoded_jwt
 
 def verify_token(token: str) -> Optional[str]:
     #"""Verify and decode a JWT token."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
         username: str = payload.get("sub")
         if username is None:
             return None
         return username
     except JWTError:
         return None
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    """
+    Dependency that extracts the token, verifies it, and returns the user email.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    email = verify_token(token)
+    if email is None:
+        raise credentials_exception
+    return email

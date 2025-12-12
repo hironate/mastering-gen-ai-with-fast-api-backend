@@ -86,4 +86,6 @@ dependencies = [
     "yarl==1.17.1",
     "psycopg2-binary>=2.9.11",
     "email-validator>=2.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt==3.2.2",
 ]

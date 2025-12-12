@@ -4,8 +4,7 @@ from app.config.settings import settings
 from app.core.logging import setup_logging
 from app.core.exceptions import CustomHTTPException, http_exception_handler, validation_exception_handler
 from app.api.v1.routes import api_router
-from app.middlewares.logging_middleware import LoggingMiddleware
-from app.middlewares.process_time_middleware import ProcessTimeMiddleware
+
 from loguru import logger
 from pydantic import ValidationError
 
@@ -27,8 +26,8 @@ def create_application() -> FastAPI:
     )
     
     # Add custom middlewares
-    application.add_middleware(LoggingMiddleware)
-    application.add_middleware(ProcessTimeMiddleware)
+    # application.add_middleware(AuthenticationMiddleware)  <-- Removed usage
+
     
     # Add exception handlers
     application.add_exception_handler(CustomHTTPException, http_exception_handler)
