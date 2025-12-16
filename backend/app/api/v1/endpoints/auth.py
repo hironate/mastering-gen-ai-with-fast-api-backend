@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.core.exceptions import CustomHTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
+from app.core.security import oauth2_scheme
 from app.db.session import get_db
 from app.services.internal import AuthService
 from app.schemas.auth_schema import UserCreate, LoginRequest, LoginResponse, UserResponse, LoginSessionResponse, PasswordUpdateRequest, AuthenticatedUser
 
-from app.middlewares.auth_middleware import auth_dependency
+from app.middlewares.auth_middleware import auth_required
 
 router = APIRouter()
 
@@ -23,7 +23,8 @@ async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     except Exception as e:
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/update-password", response_model=UserResponse, dependencies=[Depends(auth_dependency)])
+@router.put("/update-password", response_model=UserResponse, dependencies=[Depends(oauth2_scheme)])
+@auth_required
 async def update_password(request: Request,
                             password_update_request: PasswordUpdateRequest, 
                             db: Session = Depends(get_db)):
@@ -59,7 +60,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = D
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
 
-@router.post("/logout", dependencies=[Depends(auth_dependency)])
+@router.post("/logout", dependencies=[Depends(oauth2_scheme)])
+@auth_required
 async def logout(request: Request, db: Session = Depends(get_db)):
 
     #"""Logout user."""
@@ -73,7 +75,8 @@ async def logout(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         raise CustomHTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/sessions", response_model=list[LoginSessionResponse], dependencies=[Depends(auth_dependency)])
+@router.get("/sessions", response_model=list[LoginSessionResponse], dependencies=[Depends(oauth2_scheme)])
+@auth_required
 async def get_user_sessions(request: Request,
                             db: Session = Depends(get_db)):
 
