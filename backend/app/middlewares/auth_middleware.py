@@ -4,9 +4,9 @@ from typing import Any
 from fastapi import Request, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.security import verify_token
 from app.schemas.auth_schema import AuthenticatedUser
-from app.services.internal.auth_service import AuthService
+from app.services.internal.auth_service import AuthService, verify_token
+from loguru import logger
 
 
 def auth_required(func):
@@ -23,7 +23,6 @@ def auth_required(func):
     async def decorator(request: Request, *args: Any, **kwargs: Any):
         # Extract token from Authorization header
         authorization: str | None = request.headers.get("Authorization")
-
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

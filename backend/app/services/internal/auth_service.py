@@ -1,11 +1,38 @@
 from sqlalchemy.orm import Session
 from typing import Optional
-from uuid import UUID
 
-from app.core.security import verify_password, get_password_hash, create_access_token
+from app.utils.auth import get_password_hash, encrypt_token, decrypt_token, verify_password
 from app.services.repositories import UserRepository, LoginSessionRepository
 from app.schemas.auth_schema import UserCreate, LoginRequest, UserResponse, LoginResponse, PasswordUpdateRequest
 from app.core.exceptions import CustomHTTPException
+from app.schemas.auth_schema import LoginSessionResponse
+from datetime import datetime, timedelta
+from app.config.settings import settings
+from app.utils.auth import JWTError
+from loguru import logger
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    #"""Create a JWT access token."""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_encode.update({"exp": expire})
+
+    return encrypt_token(to_encode)
+
+def verify_token( token: str) -> Optional[str]:
+    #"""Verify and decode a JWT token."""
+    try:
+        payload = decrypt_token(token)
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        return username
+    except JWTError:
+        return None
 
 class AuthService:
     def __init__(self, db: Session):
@@ -58,7 +85,7 @@ class AuthService:
 
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
-
+        logger.info(f"Access token: ++++++++auth_service+++++++++++++++ {access_token} +++++++++++++++++++++++")
         return LoginResponse(user=UserResponse.from_orm(user),access_token=access_token)
 
     def logout(self, user_email: str) -> dict:
@@ -93,7 +120,11 @@ class AuthService:
             raise CustomHTTPException(status_code=404, detail="User not found")
 
         sessions = self.session_repo.get_sessions_by_user(user.id)
-        return [session for session in sessions]
+        # Convert SQLAlchemy models to Pydantic models so they can be serialized
+        return [
+            LoginSessionResponse.model_validate(session, from_attributes=True)
+            for session in sessions
+        ]
 
     def get_current_user(self, email: str) -> Optional[UserResponse]:
         #"""Get current authenticated user."""

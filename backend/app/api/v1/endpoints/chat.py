@@ -2,21 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from app.middlewares.auth_middleware import auth_required
 from app.schemas.chat_schema import ChatRequest, ChatResponse
+from app.utils.response_handler import ResponseHandler
+from app.core.exceptions import CustomHTTPException
 from app.services.llm.factory import LLMFactory
 from loguru import logger
 from app.services.prompts.chat import prepare_chat_prompt
 from app.services.prompts.assistant import prepare_assistant_prompt
-from app.core.security import oauth2_scheme
+from app.utils.auth import oauth2_scheme
+from app.db.session import get_db
+from sqlalchemy.orm import Session
 
 
 router = APIRouter()
 
-@router.post("/", response_model=ChatResponse, dependencies=[Depends(oauth2_scheme)])
+@router.post("/", dependencies=[Depends(oauth2_scheme)])
 @auth_required
 async def create_chat(
     request: Request,
     chat_request: ChatRequest = Depends(ChatRequest.as_form),
+    db: Session = Depends(get_db),
 ):
+    """Create a chat completion with optional streaming."""
     try:
         provider_id = chat_request.model
         llm_provider = LLMFactory.get_provider(provider_id)
@@ -28,15 +34,20 @@ async def create_chat(
             messages = prepare_chat_prompt(chat_request.prompt, chat_request.files)
         
         if chat_request.stream:
+            # For streaming responses, return StreamingResponse directly
+            # (streaming responses have their own format)
             return StreamingResponse(
                 llm_provider.generate_stream_response(messages),
                 media_type='text/event-stream'
             )
 
         ai_response = llm_provider.generate_response(messages)
-        return {"response": ai_response}
+        return ResponseHandler().success_response(data={"response": ai_response}, message="Chat response generated successfully")
     except ValueError as ve:
         logger.error(f"Error in chat endpoint: {str(ve)}")
-        raise HTTPException(status_code=400, detail=str(ve))
+        return ResponseHandler().error_response(status_code=400, detail=str(ve))
+    except CustomHTTPException as e:
+        return ResponseHandler().error_response(status_code=e.status_code, detail=e.detail)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Unexpected error in chat endpoint: {str(e)}")
+        return ResponseHandler().error_response(status_code=500, detail="Internal server error")
