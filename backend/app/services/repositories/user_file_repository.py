@@ -1,13 +1,11 @@
-from sqlalchemy.orm import Session
 from typing import Optional, List
-from uuid import UUID
-
-from app.models.user import User
-from app.models.user_file import UserFile
-from app.schemas.auth_schema import UserResponse
+from database.models import UserFile
+from app.db.session import get_db
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 class UserFileRepository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session = Depends(get_db)):
         self.db = db
 
     def get_file_by_user_id(self, user_id: int) -> List[UserFile]:

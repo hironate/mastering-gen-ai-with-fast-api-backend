@@ -2,10 +2,10 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.utils.auth import get_password_hash, encrypt_token, decrypt_token, verify_password
-from app.services.repositories import UserRepository, LoginSessionRepository
+from app.services.repositories import UserRepository
 from app.schemas.auth_schema import UserCreate, LoginRequest, UserResponse, LoginResponse, PasswordUpdateRequest
 from app.core.exceptions import CustomHTTPException
-from app.schemas.auth_schema import LoginSessionResponse
+from app.utils.response_handler import ResponseHandler
 from datetime import datetime, timedelta
 from app.config.settings import settings
 from app.utils.auth import JWTError
@@ -35,15 +35,14 @@ def verify_token( token: str) -> Optional[str]:
         return None
 
 class AuthService:
-    def __init__(self, db: Session):
-        self.db = db
-        self.user_repo = UserRepository(db)
-        self.session_repo = LoginSessionRepository(db)
+    def __init__(self):
+        self.user_repo = UserRepository()
 
     def signup(self, user_data: UserCreate) -> UserResponse:
         #"""Create a new user account."""
         # Check if user already exists
         existing_user = self.user_repo.get_user_by_email(user_data.email)
+
         if existing_user:
             raise CustomHTTPException(status_code=400, detail="Email already registered")
 
@@ -53,7 +52,7 @@ class AuthService:
         # Create user
         try:
             user = self.user_repo.create_user(user_data, password_hash)
-            return UserResponse.from_orm(user)
+            return UserResponse.model_validate(user)
         except ValueError as e:
             raise CustomHTTPException(status_code=400, detail=str(e))
 
@@ -62,31 +61,22 @@ class AuthService:
         # Get user by email
         user = self.user_repo.get_user_by_email(login_data.email)
         if not user:
-            # Create failed session
-            self.session_repo.create_session('00', 'failed', 'User not found')
             raise CustomHTTPException(status_code=401, detail="Invalid email or password")
 
         # Verify password
         if not verify_password(login_data.password, user.password_hash):
-            # Create failed session
-            self.session_repo.create_session(user.id, 'failed', 'Invalid password')
             raise CustomHTTPException(status_code=401, detail="Invalid email or password")
 
         # Check if user is active
         if not user.is_active:
-            self.session_repo.create_session(user.id, 'failed', 'User account is inactive')
             raise CustomHTTPException(status_code=401, detail="Account is inactive")
 
         # Update last login
         self.user_repo.update_last_login(user.id)
 
-        # Create successful session
-        self.session_repo.create_session(user.id, 'success')
-
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
-        logger.info(f"Access token: ++++++++auth_service+++++++++++++++ {access_token} +++++++++++++++++++++++")
-        return LoginResponse(user=UserResponse.from_orm(user),access_token=access_token)
+        return LoginResponse(user=UserResponse.model_validate(user),access_token=access_token)
 
     def logout(self, user_email: str) -> dict:
         #"""Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
@@ -94,10 +84,6 @@ class AuthService:
         if not user:
             raise CustomHTTPException(status_code=404, detail="User not found")
         
-        last_session = self.session_repo.get_last_active_session(user.id)
-        print(last_session)
-        if last_session:
-            self.session_repo.update_logout_time(last_session.id)
         return {"message": "Logged out successfully"}
 
     def update_password(self, email: str, old_password: str, new_password: str) -> UserResponse:
@@ -111,24 +97,11 @@ class AuthService:
         
         new_password_hash = get_password_hash(new_password)
         updated_user = self.user_repo.update_password(user.id, new_password_hash)
-        return UserResponse.from_orm(updated_user)
-
-    def get_user_sessions(self, user_email: str) -> list:
-        #"""Get login sessions for a user."""
-        user = self.user_repo.get_user_by_email(user_email)
-        if not user:
-            raise CustomHTTPException(status_code=404, detail="User not found")
-
-        sessions = self.session_repo.get_sessions_by_user(user.id)
-        # Convert SQLAlchemy models to Pydantic models so they can be serialized
-        return [
-            LoginSessionResponse.model_validate(session, from_attributes=True)
-            for session in sessions
-        ]
+        return UserResponse.model_validate(updated_user)
 
     def get_current_user(self, email: str) -> Optional[UserResponse]:
         #"""Get current authenticated user."""
         user = self.user_repo.get_user_by_email(email)
         if user:
-            return UserResponse.from_orm(user)
+            return UserResponse.model_validate(user)
         return None

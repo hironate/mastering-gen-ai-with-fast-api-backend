@@ -9,19 +9,13 @@ from loguru import logger
 from app.services.prompts.chat import prepare_chat_prompt
 from app.services.prompts.assistant import prepare_assistant_prompt
 from app.utils.auth import oauth2_scheme
-from app.db.session import get_db
-from sqlalchemy.orm import Session
-
 
 router = APIRouter()
 
 @router.post("/", dependencies=[Depends(oauth2_scheme)])
-@auth_required
-async def create_chat(
-    request: Request,
-    chat_request: ChatRequest = Depends(ChatRequest.as_form),
-    db: Session = Depends(get_db),
-):
+@auth_required(["ADMIN"])
+async def create_chat(request: Request,
+                      chat_request: ChatRequest = Depends(ChatRequest.as_form)):
     """Create a chat completion with optional streaming."""
     try:
         provider_id = chat_request.model
@@ -45,9 +39,9 @@ async def create_chat(
         return ResponseHandler().success_response(data={"response": ai_response}, message="Chat response generated successfully")
     except ValueError as ve:
         logger.error(f"Error in chat endpoint: {str(ve)}")
-        return ResponseHandler().error_response(status_code=400, detail=str(ve))
+        return CustomHTTPException(status_code=400, detail=str(ve))
     except CustomHTTPException as e:
-        return ResponseHandler().error_response(status_code=e.status_code, detail=e.detail)
+        return CustomHTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logger.error(f"Unexpected error in chat endpoint: {str(e)}")
-        return ResponseHandler().error_response(status_code=500, detail="Internal server error")
+        return CustomHTTPException(status_code=500, detail="Internal server error")

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
+from app.utils.enum import Role
 
 # User schemas
 class UserBase(BaseModel):
@@ -9,10 +10,12 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    role: Role = Role.USER
 
 class UserResponse(UserBase):
     id: int
     is_active: bool
+    role: Role
     last_login_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
@@ -38,18 +41,6 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# Session schemas
-class LoginSessionResponse(BaseModel):
-    id: int
-    user_id: int
-    login_at: datetime
-    logout_at: Optional[datetime] = None
-    status: str
-    failure_reason: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
 class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str
@@ -58,4 +49,4 @@ class AuthenticatedUser(BaseModel):
     id: int
     username: Optional[str] = None
     email: EmailStr
-
+    role: Role
