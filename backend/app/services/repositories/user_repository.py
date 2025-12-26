@@ -3,9 +3,7 @@ from typing import Optional
 from app.schemas.auth_schema import UserCreate, UserResponse
 from database.models import User
 from app.db.session import get_db
-from sqlalchemy.orm import Session, defer, load_only
-from fastapi import Depends
-from loguru import logger
+from sqlalchemy.orm import defer, load_only
 
 
 class UserRepository:

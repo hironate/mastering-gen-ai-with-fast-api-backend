@@ -1,22 +1,15 @@
 from fastapi import APIRouter, Depends, Request, Response
-from app.config.settings import settings
 from app.core.exceptions import CustomHTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from app.db.session import get_db
+from app.config.settings import settings
 from app.services.internal import AuthService
 from app.schemas.auth_schema import (
     UserCreate,
     LoginRequest,
-    LoginResponse,
-    UserResponse,
     PasswordUpdateRequest,
-    AuthenticatedUser,
 )
 from app.utils.response_handler import ResponseHandler
 from loguru import logger
 from app.middlewares.auth_middleware import auth_required
-from loguru import logger
 
 router = APIRouter()
 

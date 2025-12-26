@@ -1,13 +1,10 @@
-from functools import wraps
 from typing import Optional, List
 
 from fastapi import Request, HTTPException, status
-from sqlalchemy.orm import Session
 from app.core.exceptions import CustomHTTPException
 
 from app.schemas.auth_schema import AuthenticatedUser
 from app.services.internal.auth_service import AuthService, verify_token
-from loguru import logger
 from app.middlewares.base_decoraters import base_decorator
 from app.config.settings import settings
 
