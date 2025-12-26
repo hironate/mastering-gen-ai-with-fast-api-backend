@@ -1,6 +1,6 @@
 from functools import wraps
 from typing import Callable, Any
-from fastapi import Request, Depends
+from fastapi import Request
 
 def base_decorator(*deps: Callable[..., Any]):
     """

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr 
 from typing import Optional
 from datetime import datetime
 from app.utils.enum import Role
@@ -39,7 +39,6 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     user: UserResponse
     access_token: str
-    token_type: str = "bearer"
 
 class PasswordUpdateRequest(BaseModel):
     old_password: str
