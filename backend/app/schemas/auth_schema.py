@@ -39,9 +39,3 @@ class LoginRequest(BaseModel):
 class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str
-
-class AuthenticatedUser(BaseModel):
-    id: int
-    username: Optional[str] = None
-    email: EmailStr
-    role: Role

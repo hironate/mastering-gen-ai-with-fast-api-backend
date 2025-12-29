@@ -1,9 +1,9 @@
 from typing import Optional, List
 
 from fastapi import Request
-from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException, BadRequestException
+from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException
 
-from app.schemas.auth_schema import AuthenticatedUser
+from app.schemas.auth_schema import UserResponse
 from app.services.internal.auth_service import AuthService, verify_token
 from app.middlewares.base_decoraters import base_decorator
 from app.config.settings import settings
@@ -40,10 +40,8 @@ def auth_required(roles: Optional[List[str]] = None):
                 message="User not found"
             )
 
-        # Attach authenticated user as AuthenticatedUser schema
-        request.state.user = AuthenticatedUser(
-            id=user.id, username=user.full_name, email=user.email, role=user.role
-        )
+        # Attach authenticated user as UserResponse schema
+        request.state.user = UserResponse.model_validate(user)
 
         # Role-based Authorization check
         if roles:

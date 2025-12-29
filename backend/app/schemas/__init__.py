@@ -4,7 +4,7 @@ from .auth_schema import (
     LoginRequest,
     PasswordUpdateRequest
 )
-from .chat_schema import ChatRequest
+from .chat_schema import ChatRequest, ChatResponse
 #from .presigned_url_schema import PresignedUploadRequest, PresignedUploadResponse, PresignedDownloadRequest, PresignedDownloadResponse
 
 __all__ = [

@@ -14,9 +14,7 @@ from app.schemas.auth_schema import (
 )
 from app.config.settings import settings
 from app.utils.auth import JWTError
-from loguru import logger
 from app.core.exceptions.http_exception import UnauthorizedException, NotFoundException, BadRequestException
-from app.utils.response_handler import ResponseHandler
 from datetime import datetime, timedelta
 
 
@@ -93,7 +91,7 @@ class AuthService:
 
     def logout(self, user_email: str) -> dict:
         # """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
-        user = self.user_repo.get_user_by_email(user_email)
+        user = self.user_repo.get_user_by_email(user_email,includePassword=False)
         if not user:
             raise NotFoundException(message="User not found")
 
@@ -114,7 +112,7 @@ class AuthService:
 
     def get_current_user(self, email: str) -> Optional[UserResponse]:
         # """Get current authenticated user."""
-        user = self.user_repo.get_user_by_email(email)
+        user = self.user_repo.get_user_by_email(email,includePassword=False)
         if user:
             return UserResponse.model_validate(user)
         return None

@@ -40,7 +40,5 @@ async def create_chat(
             data={"response": ai_response},
             message="Chat response generated successfully",
         )
-    except BadRequestException as ve:
-        raise ve
-    except ForbiddenException as e:
+    except (BadRequestException, ForbiddenException) as e:
         raise e

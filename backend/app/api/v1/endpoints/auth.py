@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from app.config.settings import settings
 from app.services.internal import AuthService
 from app.schemas.auth_schema import (
@@ -6,9 +6,7 @@ from app.schemas.auth_schema import (
     LoginRequest,
     PasswordUpdateRequest,
 )
-from app.core.exceptions.http_exception import BadRequestException
 from app.utils.response_handler import ResponseHandler
-from loguru import logger
 from app.middlewares.auth_middleware import auth_required
 
 router = APIRouter()
@@ -45,7 +43,7 @@ async def login(body: LoginRequest):
         value=result["access_token"],
         httponly=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        secure=False,  # Set to True in production
+        secure= True if settings.ENVIRONMENT == "production" else False,  # Set to True in production
     )
     return response
 
