@@ -36,10 +36,6 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
-class LoginResponse(BaseModel):
-    user: UserResponse
-    access_token: str
-
 class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str

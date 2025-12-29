@@ -1,35 +1,27 @@
-from typing import Optional, Dict, Any
+from typing import Any, Optional
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-
 
 class ResponseHandler:
-
-    def __init__(self):
-        pass
-
-    def success_response(
-        self, data: Any = None, message: str = "Operation successful", code: int = 200
-    ):
+    @staticmethod
+    def success_response(data: Any = None, message: str = "Operation successful", code: int = 200):
         """Helper function to create a success response"""
-        return JSONResponse(
+        return JSONResponse(     
             status_code=code,
             content={
                 "status": "success",
                 "message": message,
-                "data": jsonable_encoder(data),  # Convert to JSON-serializable format
+                "data": data  # Convert to JSON-serializable format
             },
         )
-
-    def error_response(self, message: str, detail: Any = None, code: int = 400):
+    # static method is used to create an error response without creating an instance of the class
+    @staticmethod
+    def error_response(message: str, code: int, errors: Optional[Any] = None):
         """Helper function to create an error response"""
         return JSONResponse(
             status_code=code,
             content={
                 "status": "error",
                 "message": message,
-                "detail": jsonable_encoder(
-                    detail
-                ),  # Convert to JSON-serializable format
+                "detail": errors  # Convert to JSON-serializable format
             },
         )

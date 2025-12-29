@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.utils.auth import (
@@ -12,16 +11,13 @@ from app.schemas.auth_schema import (
     UserCreate,
     LoginRequest,
     UserResponse,
-    LoginResponse,
-    PasswordUpdateRequest,
 )
-from app.core.exceptions import CustomHTTPException
-from app.utils.response_handler import ResponseHandler
-from datetime import datetime, timedelta
 from app.config.settings import settings
 from app.utils.auth import JWTError
 from loguru import logger
-from database.models.user import User
+from app.core.exceptions.http_exception import UnauthorizedException, NotFoundException, BadRequestException
+from app.utils.response_handler import ResponseHandler
+from datetime import datetime, timedelta
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -63,10 +59,7 @@ class AuthService:
         existing_user = self.user_repo.get_user_by_email(user_data.email)
 
         if existing_user:
-            raise CustomHTTPException(
-                status_code=400, detail="Email already registered"
-            )
-
+            raise BadRequestException(message="Email already registered")
         # Hash the password
         password_hash = get_password_hash(user_data.password)
 
@@ -75,9 +68,10 @@ class AuthService:
             user = self.user_repo.create_user(user_data, password_hash)
             return UserResponse.model_validate(user)
         except ValueError as e:
-            raise CustomHTTPException(status_code=400, detail=str(e))
+            raise BadRequestException(message=str(e))
 
-    def login(self, login_data: LoginRequest) -> LoginResponse:
+
+    def login(self, login_data: LoginRequest) -> dict:
         # """Authenticate user and create login session."""
         # Get user by email
         user_data = self.user_repo.get_user_by_email(
@@ -87,50 +81,36 @@ class AuthService:
         )
 
         if not user_data:
-            raise CustomHTTPException(status_code=401, detail="user does not exist")
-
-        # Check if user is active
+            raise UnauthorizedException(message="user does not exist")
         if not user_data.is_active:
-            raise CustomHTTPException(status_code=401, detail="Account is inactive")
-
-        # Verify password
+            raise UnauthorizedException(message="Account is inactive")
         if not verify_password(login_data.password, user_data.password_hash):
-            raise CustomHTTPException(
-                status_code=401, detail="Invalid email or password"
-            )
-
-        # Update last login
+            raise UnauthorizedException(message="Invalid email or password")
         self.user_repo.update_last_login(user_data.id)
-
-        # Create access token
         access_token = create_access_token(data={"sub": user_data.email})
-
-        return LoginResponse(
-            user=UserResponse.model_validate(user_data), access_token=access_token
-        )
+        user_response = UserResponse.model_validate(user_data)
+        return {"user": user_response.model_dump(mode='json'), "access_token": access_token}
 
     def logout(self, user_email: str) -> dict:
         # """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
         user = self.user_repo.get_user_by_email(user_email)
         if not user:
-            raise CustomHTTPException(status_code=404, detail="User not found")
+            raise NotFoundException(message="User not found")
 
         return {"message": "Logged out successfully"}
 
-    def update_password(
-        self, email: str, old_password: str, new_password: str
-    ) -> UserResponse:
+    def update_password(self, email: str, old_password: str, new_password: str) -> dict:
         # """Update user's password."""
         user = self.user_repo.get_user_by_email(email, includePassword=True)
         if not user:
-            raise CustomHTTPException(status_code=404, detail="User not found")
+            raise NotFoundException(message="User not found")
 
         if not verify_password(old_password, user.password_hash):
-            raise CustomHTTPException(status_code=401, detail="Invalid old password")
-
+            raise UnauthorizedException(message="Invalid old password")
+        
         new_password_hash = get_password_hash(new_password)
         updated_user = self.user_repo.update_password(user.id, new_password_hash)
-        return UserResponse.model_validate(updated_user)
+        return {"message": "Password updated successfully"}
 
     def get_current_user(self, email: str) -> Optional[UserResponse]:
         # """Get current authenticated user."""

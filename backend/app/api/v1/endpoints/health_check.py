@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response
 from app.utils.response_handler import ResponseHandler
-from app.core.exceptions import CustomHTTPException
+from app.core.exceptions.http_exception import BadRequestException
 
 router = APIRouter()
 
@@ -12,4 +12,4 @@ async def health_check(response: Response):
 @router.get("/error")
 async def health_check_error(response: Response):
     """Error endpoint for testing error responses."""
-    raise CustomHTTPException(status_code=500, detail="System is experiencing issues")
+    raise BadRequestException(message="System is experiencing issues")

@@ -1,16 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
 from app.core.logging import setup_logging
-from app.core.exceptions import (
-    CustomHTTPException,
-    http_exception_handler,
-    request_validation_exception_handler,
-)
 from app.api.v1.routes import api_router
-
+from app.core.exceptions_handler import app_http_exception_handler, validation_exception_handler, internal_exception_handler
 from loguru import logger
-from pydantic import ValidationError
+from app.core.exceptions.base import AppHTTPException
+from fastapi.exceptions import RequestValidationError
 
 
 def create_application() -> FastAPI:
@@ -34,8 +30,9 @@ def create_application() -> FastAPI:
     # application.add_middleware(AuthenticationMiddleware)  <-- Removed usage
 
     # Add exception handlers
-    application.add_exception_handler(CustomHTTPException, http_exception_handler)
-    application.add_exception_handler(HTTPException, http_exception_handler)
+    application.add_exception_handler(AppHTTPException, app_http_exception_handler)
+    application.add_exception_handler(RequestValidationError, validation_exception_handler)
+    application.add_exception_handler(Exception, internal_exception_handler)
     # Include API routes
     application.include_router(api_router, prefix=settings.API_V1_STR)
 
