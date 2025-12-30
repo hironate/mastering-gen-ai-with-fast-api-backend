@@ -11,6 +11,7 @@ from app.schemas.auth_schema import (
     UserCreate,
     LoginRequest,
     UserResponse,
+    AuthResponse,
 )
 from app.config.settings import settings
 from app.utils.auth import JWTError
@@ -19,7 +20,7 @@ from datetime import datetime, timedelta
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    # """Create a JWT access token."""
+    """Create a JWT access token."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -34,7 +35,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 def verify_token(token: str) -> Optional[str]:
-    # """Verify and decode a JWT token."""
+    """Verify and decode a JWT token."""
     try:
         payload = decrypt_token(token)
         username: str = payload.get("sub")
@@ -48,20 +49,17 @@ def verify_token(token: str) -> Optional[str]:
 class AuthService:
 
     def __init__(self):
-        # UserRepository now manages its own database session
         self.user_repo = UserRepository()
 
     def signup(self, user_data: UserCreate) -> UserResponse:
-        # """Create a new user account."""
-        # Check if user already exists
+        """Create a new user account."""
         existing_user = self.user_repo.get_user_by_email(user_data.email)
 
         if existing_user:
             raise BadRequestException(message="Email already registered")
-        # Hash the password
+        
         password_hash = get_password_hash(user_data.password)
 
-        # Create user
         try:
             user = self.user_repo.create_user(user_data, password_hash)
             return UserResponse.model_validate(user)
@@ -70,8 +68,7 @@ class AuthService:
 
 
     def login(self, login_data: LoginRequest) -> dict:
-        # """Authenticate user and create login session."""
-        # Get user by email
+        """Authenticate user and create login session."""
         user_data = self.user_repo.get_user_by_email(
             login_data.email,
             attributes=[],
@@ -89,30 +86,13 @@ class AuthService:
         user_response = UserResponse.model_validate(user_data)
         return {"user": user_response.model_dump(mode='json'), "access_token": access_token}
 
-    def logout(self, user_email: str) -> dict:
-        # """Logout user (invalidate token - in a real implementation, you'd use token blacklist)."""
-        user = self.user_repo.get_user_by_email(user_email,includePassword=False)
-        if not user:
-            raise NotFoundException(message="User not found")
-
-        return {"message": "Logged out successfully"}
-
-    def update_password(self, email: str, old_password: str, new_password: str) -> dict:
-        # """Update user's password."""
-        user = self.user_repo.get_user_by_email(email, includePassword=True)
-        if not user:
-            raise NotFoundException(message="User not found")
-
+    def update_password(self, user: AuthResponse, old_password: str, new_password: str) -> dict:
+        """Update user's password."""
         if not verify_password(old_password, user.password_hash):
             raise UnauthorizedException(message="Invalid old password")
-        
+        if new_password == old_password:
+            raise BadRequestException(message="New password cannot be the same as the old password")
+            
         new_password_hash = get_password_hash(new_password)
         updated_user = self.user_repo.update_password(user.id, new_password_hash)
         return {"message": "Password updated successfully"}
-
-    def get_current_user(self, email: str) -> Optional[UserResponse]:
-        # """Get current authenticated user."""
-        user = self.user_repo.get_user_by_email(email,includePassword=False)
-        if user:
-            return UserResponse.model_validate(user)
-        return None

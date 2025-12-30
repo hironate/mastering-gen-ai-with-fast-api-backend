@@ -23,13 +23,11 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-# Auth schemas
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-class TokenData(BaseModel):
-    email: Optional[str] = None
+class AuthResponse(UserResponse):
+    password_hash: str
+    
+    class Config:
+        from_attributes = True
 
 # Login schemas
 class LoginRequest(BaseModel):

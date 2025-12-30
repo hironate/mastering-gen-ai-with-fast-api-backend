@@ -13,7 +13,6 @@ async def app_http_exception_handler(request: Request, exc: AppHTTPException):
     It wraps our standardized error payload into a proper
     `JSONResponse` so Starlette/FastAPI receive a valid ASGI response object.
     """
-    # ResponseHandler().error_response() already returns a JSONResponse
     return ResponseHandler().error_response(
         message=exc.details,
         code=exc.status_code,
@@ -37,7 +36,6 @@ async def validation_exception_handler(
     )
 
 async def internal_exception_handler(request: Request, exc: Exception):
-    # log exc here
     return ResponseHandler.error_response(
         message="Internal Server Error",
         code=500,

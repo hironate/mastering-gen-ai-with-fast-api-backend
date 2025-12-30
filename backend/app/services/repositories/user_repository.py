@@ -8,12 +8,10 @@ from sqlalchemy.orm import defer, load_only
 
 class UserRepository:
     def __init__(self):
-        # Create our own database session
         self._db_gen = get_db()
         self.db = next(self._db_gen)
 
     def __del__(self):
-        # Clean up the database session when the repository is destroyed
         if hasattr(self, "_db_gen") and self._db_gen is not None:
             try:
                 self._db_gen.close()
@@ -26,7 +24,6 @@ class UserRepository:
         attributes: list[str] = [],
         includePassword: bool = False,
     ) -> Optional[User]:
-        # Get user by email.
         query = self.db.query(User).filter(User.email == email)
         if len(attributes) > 0:
             query = query.options(load_only(*attributes))
@@ -41,7 +38,6 @@ class UserRepository:
         attributes: list[str] = [],
         includePassword: bool = False,
     ) -> Optional[User]:
-        # Get user by id.
         query = self.db.query(User).filter(User.id == user_id)
         if len(attributes) > 0:
             query = query.options(load_only(*attributes))
@@ -51,7 +47,6 @@ class UserRepository:
         return query.first()
 
     def create_user(self, user_data: UserCreate, password_hash: str) -> User:
-        # Create a new user.
         user = User(
             email=user_data.email,
             password_hash=password_hash,
@@ -72,7 +67,6 @@ class UserRepository:
             raise ValueError("Email already exists")
 
     def update_password(self, user_id: int, new_password_hash: str) -> User:
-        # Update user's password hash.
         user = self.get_user_by_id(user_id)
         if not user:
             raise ValueError("User not found")
@@ -83,7 +77,6 @@ class UserRepository:
         return user
 
     def update_last_login(self, user_id: int) -> bool:
-        # Update user's last login timestamp.
         from datetime import datetime
 
         result = (

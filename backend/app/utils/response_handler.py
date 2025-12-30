@@ -10,10 +10,10 @@ class ResponseHandler:
             content={
                 "status": "success",
                 "message": message,
-                "data": data  # Convert to JSON-serializable format
+                "data": data
             },
         )
-    # static method is used to create an error response without creating an instance of the class
+
     @staticmethod
     def error_response(message: str, code: int, errors: Optional[Any] = None):
         """Helper function to create an error response"""
@@ -22,6 +22,6 @@ class ResponseHandler:
             content={
                 "status": "error",
                 "message": message,
-                "detail": errors  # Convert to JSON-serializable format
+                "detail": errors
             },
         )

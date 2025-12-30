@@ -14,7 +14,6 @@ def base_decorator(*deps: Callable[..., Any]):
     def decorator(route_fn):
         @wraps(route_fn)
         async def wrapper(request: Request, *args, **kwargs):
-            # Manually execute dependencies
             for dep in deps:
                 await dep(request)
             return await route_fn(request, *args, **kwargs)

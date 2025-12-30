@@ -3,10 +3,11 @@ from typing import Optional, List
 from fastapi import Request
 from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException
 
-from app.schemas.auth_schema import UserResponse
-from app.services.internal.auth_service import AuthService, verify_token
+from app.schemas.auth_schema import AuthResponse
+from app.services.internal.auth_service import verify_token
 from app.middlewares.base_decoraters import base_decorator
 from app.config.settings import settings
+from app.services.repositories import UserRepository
 
 
 def auth_required(roles: Optional[List[str]] = None):
@@ -33,17 +34,14 @@ def auth_required(roles: Optional[List[str]] = None):
                 message="Invalid or expired token"
             )
 
-        # Load the current user from DB
-        user = AuthService().get_current_user(email)
+        user = UserRepository().get_user_by_email(email, includePassword=True)
         if user is None:
             raise NotFoundException(
                 message="User not found"
             )
 
-        # Attach authenticated user as UserResponse schema
-        request.state.user = UserResponse.model_validate(user)
+        request.state.user = AuthResponse.model_validate(user)
 
-        # Role-based Authorization check
         if roles:
             required_roles = roles if isinstance(roles, list) else [roles]
             if user.role not in required_roles:

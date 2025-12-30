@@ -17,7 +17,6 @@ def create_application() -> FastAPI:
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
     )
 
-    # Set CORS middleware
     application.add_middleware(
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
@@ -26,14 +25,9 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Add custom middlewares
-    # application.add_middleware(AuthenticationMiddleware)  <-- Removed usage
-
-    # Add exception handlers
     application.add_exception_handler(AppHTTPException, app_http_exception_handler)
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
     application.add_exception_handler(Exception, internal_exception_handler)
-    # Include API routes
     application.include_router(api_router, prefix=settings.API_V1_STR)
 
     return application
