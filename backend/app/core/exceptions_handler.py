@@ -26,7 +26,7 @@ async def validation_exception_handler(
     request: Request,
     exc: RequestValidationError
 ):
-    return ResponseHandler.error_response(
+    return ResponseHandler().error_response(
         message="Validation Error",
         code=422,
         errors={
@@ -36,7 +36,7 @@ async def validation_exception_handler(
     )
 
 async def internal_exception_handler(request: Request, exc: Exception):
-    return ResponseHandler.error_response(
+    return ResponseHandler().error_response(
         message="Internal Server Error",
         code=500,
         errors={

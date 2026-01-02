@@ -8,14 +8,13 @@ from app.schemas.auth_schema import (
 )
 from app.utils.response_handler import ResponseHandler
 from app.middlewares.auth_middleware import auth_required
-
 router = APIRouter()
 
 
 @router.post("/signup")
 async def signup(body: UserCreate):
     """Create a new user account."""
-    AuthService().signup(body)
+    user_response = AuthService().signup(body)
     login_response = AuthService().login(LoginRequest(email=body.email, password=body.password))
     response = ResponseHandler().success_response(data=login_response["user"], message="User created successfully")
     response.set_cookie(

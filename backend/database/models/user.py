@@ -8,7 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)    
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    full_name = Column(String)
+    name = Column(String)
     role = Column(Enum(Role), nullable=False, default=Role.USER)
     is_active = Column(Boolean, default=True)
     last_login_at = Column(DateTime(timezone=True))

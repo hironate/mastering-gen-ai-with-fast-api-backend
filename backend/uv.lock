@@ -222,7 +222,7 @@ dependencies = [
     { name = "psycopg2-binary" },
     { name = "pyasn1" },
     { name = "pycparser" },
-    { name = "pydantic", extra = ["email"] },
+    { name = "pydantic" },
     { name = "pydantic-core" },
     { name = "pydantic-settings" },
     { name = "pytest" },
@@ -309,7 +309,7 @@ requires-dist = [
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "pyasn1", specifier = "==0.6.1" },
     { name = "pycparser", specifier = "==2.22" },
-    { name = "pydantic", extras = ["email"], specifier = "==2.9.2" },
+    { name = "pydantic", specifier = "==2.9.2" },
     { name = "pydantic-core", specifier = "==2.23.4" },
     { name = "pydantic-settings", specifier = "==2.6.1" },
     { name = "pytest", specifier = "==8.3.3" },
@@ -1494,11 +1494,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a9/b7/d9e3f12af310e1120c21603644a1cd86f59060e040ec5c3a80b8f05fae30/pydantic-2.9.2.tar.gz", hash = "sha256:d155cef71265d1e9807ed1c32b4c8deec042a44a50a4188b25ac67ecd81a9c0f", size = 769917, upload-time = "2024-09-17T15:59:54.273Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/df/e4/ba44652d562cbf0bf320e0f3810206149c8a4e99cdbf66da82e97ab53a15/pydantic-2.9.2-py3-none-any.whl", hash = "sha256:f048cec7b26778210e28a0459867920654d48e5e62db0958433636cde4254f12", size = 434928, upload-time = "2024-09-17T15:59:51.827Z" },
-]
-
-[package.optional-dependencies]
-email = [
-    { name = "email-validator" },
 ]
 
 [[package]]

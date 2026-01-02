@@ -50,7 +50,7 @@ class UserRepository:
         user = User(
             email=user_data.email,
             password_hash=password_hash,
-            full_name=user_data.full_name,
+            name=user_data.name,
             role=user_data.role,
             is_active=True,
         )

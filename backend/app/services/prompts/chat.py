@@ -1,5 +1,5 @@
 from langchain.schema import HumanMessage
-from langchain.document_loaders import TextLoader, PyPDFLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
 from typing import List, Any
 import mimetypes
 from app.utils.file_handler import prepare_image_messages
