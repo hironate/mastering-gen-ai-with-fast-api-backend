@@ -11,7 +11,7 @@ from app.schemas.auth_schema import (
     UserCreate,
     LoginRequest,
     UserResponse,
-    AuthResponse,
+        User,
 )
 from app.config.settings import settings
 from app.utils.auth import JWTError
@@ -76,7 +76,7 @@ class AuthService:
         )
 
         if not user_data:
-            raise UnauthorizedException(message="user does not exist")
+            raise UnauthorizedException(message="User not found")
         if not user_data.is_active:
             raise UnauthorizedException(message="Account is inactive")
         if not verify_password(login_data.password, user_data.password_hash):
@@ -86,7 +86,7 @@ class AuthService:
         user_response = UserResponse.model_validate(user_data)
         return {"user": user_response.model_dump(mode='json'), "access_token": access_token}
 
-    def update_password(self, user: AuthResponse, old_password: str, new_password: str) -> dict:
+    def update_password(self, user: User, old_password: str, new_password: str) -> dict:
         """Update user's password."""
         if not verify_password(old_password, user.password_hash):
             raise UnauthorizedException(message="Invalid old password")

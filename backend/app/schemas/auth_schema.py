@@ -23,7 +23,7 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-class AuthResponse(UserResponse):
+class User(UserResponse):
     password_hash: str
     
     class Config:

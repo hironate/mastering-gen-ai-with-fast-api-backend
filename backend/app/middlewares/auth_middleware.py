@@ -3,7 +3,7 @@ from typing import Optional, List
 from fastapi import Request
 from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException
 
-from app.schemas.auth_schema import AuthResponse
+from app.schemas.auth_schema import User
 from app.services.internal.auth_service import verify_token
 from app.middlewares.base_decoraters import base_decorator
 from app.config.settings import settings
@@ -40,7 +40,7 @@ def auth_required(roles: Optional[List[str]] = None):
                 message="User not found"
             )
 
-        request.state.user = AuthResponse.model_validate(user)
+        request.state.user = User.model_validate(user)
 
         if roles:
             required_roles = roles if isinstance(roles, list) else [roles]
