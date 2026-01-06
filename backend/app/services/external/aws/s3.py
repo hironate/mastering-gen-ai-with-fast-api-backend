@@ -5,6 +5,7 @@ from loguru import logger
 from app.core.exceptions.http_exception import BadRequestException
 import time
 import uuid
+from mimetypes import guess_extension
 
 def file_key(extension: str):
     return f"user/documents/{time.time()}-{uuid.uuid4()}{extension}"  # Unique S3 key
@@ -21,8 +22,8 @@ class S3Client:
 
     def generate_presigned_url(self, file_type: str, expiration: int = 3600):
         #"""Generate a pre-signed URL for uploading a file to S3."""
-        extension = file_type.split("/")[-1]
-        s3_file_key = file_key(extension=f".{extension}")
+        extension = guess_extension(file_type)
+        s3_file_key = file_key(extension=f"{extension}")
         try:
             presigned_url = self.s3_client.generate_presigned_url('put_object',
                                                                     Params={'Bucket': self.bucket_name,
@@ -30,7 +31,7 @@ class S3Client:
                                                                         'ContentType': file_type},
                                                                     ExpiresIn=expiration)
             logger.info(presigned_url)
-            return {"presigned_url": presigned_url, "file_key": s3_file_key, "bucket_name": self.bucket_name}
+            return {"presigned_url": presigned_url, "key": s3_file_key, "bucket": self.bucket_name}
         except ClientError as e:
             logger.error(f"Error generating pre-signed upload URL: {e}")
             raise BadRequestException(message=f"Error generating pre-signed upload URL: {e}")

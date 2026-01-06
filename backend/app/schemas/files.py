@@ -9,3 +9,20 @@ class AddFileRequest(BaseModel):
 
 class GetFileRequest(BaseModel):
     fileKey: str
+
+class PresignedUploadRequest(BaseModel):
+    fileName: str
+    fileType: str
+    fileSize: Optional[int] = None
+
+class PresignedUploadResponse(BaseModel):
+    fileId: str
+    presignedUrl: str
+    fileSize: Optional[int] = None
+
+class PresignedDownloadRequest(BaseModel):
+    fileKey: str
+
+class PresignedDownloadResponse(BaseModel):
+    presignedUrl: str
+

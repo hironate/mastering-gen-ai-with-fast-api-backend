@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from app.middlewares.auth_middleware import auth_required
 from app.services.internal.file_upload import FileService
-from app.schemas.presignedurl import PresignedUploadRequest,PresignedDownloadRequest
+from app.schemas.files import PresignedUploadRequest,PresignedDownloadRequest
 from app.services.external.aws.s3 import S3Client
 from app.utils.response_handler import ResponseHandler
 

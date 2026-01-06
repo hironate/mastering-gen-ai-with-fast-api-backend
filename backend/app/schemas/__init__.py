@@ -5,8 +5,7 @@ from .auth_schema import (
     PasswordUpdateRequest
 )
 from .chat_schema import ChatRequest, ChatResponse
-from .presignedurl import PresignedUploadRequest, PresignedUploadResponse, PresignedDownloadRequest, PresignedDownloadResponse
-from .files import AddFileRequest, GetFileRequest
+from .files import AddFileRequest, GetFileRequest, PresignedUploadRequest, PresignedUploadResponse, PresignedDownloadRequest, PresignedDownloadResponse
 __all__ = [
     "UserBase", "UserCreate", "UserResponse",
     "AuthResponse",
