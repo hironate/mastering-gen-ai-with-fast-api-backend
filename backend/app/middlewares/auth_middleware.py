@@ -4,7 +4,7 @@ from fastapi import Request
 from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException
 
 from app.schemas.auth_schema import User
-from app.services.internal.auth_service import verify_token
+from app.services.internal.auth_service import AuthService
 from app.middlewares.base_decoraters import base_decorator
 from app.config.settings import settings
 from app.services.repositories import UserRepository
@@ -28,7 +28,7 @@ def auth_required(roles: Optional[List[str]] = None):
                 message="Not authenticated"
             )
 
-        email = verify_token(token)
+        email = AuthService().verify_token(token)
         if not email:
             raise UnauthorizedException(
                 message="Invalid or expired token"

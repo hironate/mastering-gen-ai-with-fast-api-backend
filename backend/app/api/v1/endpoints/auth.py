@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/signup")
 async def signup(body: UserCreate):
     """Create a new user account."""
-    user_response = AuthService().signup(body)
+    AuthService().signup(body)
     login_response = AuthService().login(LoginRequest(email=body.email, password=body.password))
     response = ResponseHandler().success_response(data=login_response["user"], message="User created successfully")
     set_auth_cookie(response, login_response["access_token"])

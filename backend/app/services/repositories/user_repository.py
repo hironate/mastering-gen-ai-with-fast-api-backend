@@ -62,9 +62,11 @@ class UserRepository:
             self.db.refresh(user)
             return user
 
-        except IntegrityError:
+        except IntegrityError as e:
             self.db.rollback()
-            raise ValueError("Email already exists")
+            raise ValueError("Email already exists") from e
+        else:
+            raise e
 
     def update_password(self, user_id: int, new_password_hash: str) -> User:
         user = self.get_user_by_id(user_id)

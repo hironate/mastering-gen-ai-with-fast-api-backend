@@ -1,12 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
 from app.core.logging import setup_logging
 from app.api.v1.routes import api_router
-from app.core.exceptions_handler import app_http_exception_handler, validation_exception_handler, internal_exception_handler
-from loguru import logger
-from app.core.exceptions.base import AppHTTPException
+from app.core.exceptions.http_exception import app_http_exception_handler 
+from app.utils.response_handler import validation_exception_handler, internal_exception_handler
 from fastapi.exceptions import RequestValidationError
+from app.core.exceptions.http_exception import AppHTTPException
+from loguru import logger
 
 
 def create_application() -> FastAPI:

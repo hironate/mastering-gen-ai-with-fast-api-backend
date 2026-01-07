@@ -1,4 +1,23 @@
+from fastapi import Request
 from .base import AppHTTPException
+from app.utils.response_handler import ResponseHandler
+
+
+async def app_http_exception_handler(request: Request, exc: AppHTTPException):
+    """
+    Handler for HTTPException and CustomHTTPException.
+
+    It wraps our standardized error payload into a proper
+    `JSONResponse` so Starlette/FastAPI receive a valid ASGI response object.
+    """
+    return ResponseHandler.error_response(
+        message=exc.details,
+        code=exc.status_code,
+        errors={
+            "path": request.url.path,
+            "details": exc.details,
+        },
+    )
 
 
 class UnauthorizedException(AppHTTPException):
