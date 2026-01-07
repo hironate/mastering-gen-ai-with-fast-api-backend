@@ -21,18 +21,13 @@ class InterceptHandler(logging.Handler):
         )
 
 def setup_logging():
-    # Remove all handlers
     logging.root.handlers = []
-    
-    # Set loguru handler
     logging.root.addHandler(InterceptHandler())
     
-    # Set logging levels
     for name in logging.root.manager.loggerDict.keys():
         logging.getLogger(name).handlers = []
         logging.getLogger(name).propagate = True
     
-    # Configure loguru
     logger.configure(
         handlers=[
             {

@@ -56,7 +56,7 @@ Before you begin, ensure you have the following installed:
 
    ```env
    DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-   SECRET_KEY=your-super-secret-key
+   JWT_SECRET_KEY=your-super-secret-key
    ENVIRONMENT=development
    OPENAI_API_KEY=your-openai-api-key
    AWS_ACCESS_KEY_ID=your-aws-access-key-id

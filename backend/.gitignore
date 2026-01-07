@@ -38,3 +38,7 @@ ENV/
 
 # OS
 .DS_Store
+
+# Custom ignores
+assets/
+.python-version

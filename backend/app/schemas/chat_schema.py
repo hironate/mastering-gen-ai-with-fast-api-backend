@@ -5,7 +5,7 @@ from typing import Optional
 class ChatRequest(BaseModel):
     prompt: str
     data: str
-    model: str = "bedrock-claude"
+    model: str = "openai-gpt-4o"
     files: Optional[list[UploadFile]] = None
     stream: bool = True
 
@@ -14,7 +14,7 @@ class ChatRequest(BaseModel):
         cls,
         prompt: str = Form(...),
         data: str = Form(...),
-        model: str = Form("bedrock-claude"),
+        model: str = Form("openai-gpt-4o"),
         files: list[UploadFile] = None,
         stream: bool = Form(True)
     ):
