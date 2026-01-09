@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=genai_db
+      - POSTGRES_USER=genai
+      - POSTGRES_PASSWORD=genai123
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - genai
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Docker-local.dockerfile
+    command: >
+      sh -c "
+        echo 'Running migrations...'
+        uv run alembic -c ./database/config/alembic.ini upgrade head
+        echo 'Starting application...'
+        exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    volumes:
+      - ../backend:/app
+      - uv-cache:/root/.cache/uv
+      - backend-venv:/app/.venv
+    ports:
+      - '8000:8000'
+    environment:
+      - UV_LINK_MODE=copy
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - BUCKET_NAME=${BUCKET_NAME:-}
+      - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL:-}
+      - DB_USERNAME=genai
+      - DB_PASSWORD=genai123
+      - DB_HOST=postgres
+      - DB_NAME=genai_db
+      - DB_PORT=5432
+    networks:
+      - genai
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Docker-local.dockerfile
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    networks:
+      - genai
+    depends_on:
+      - backend
+
+volumes:
+  uv-cache:
+  postgres_data:
+  backend-venv:
+
+networks:
+  genai:
+    driver: bridge
