@@ -29,15 +29,10 @@ services:
       - backend-venv:/app/.venv
     ports:
       - '8000:8000'
+    env_file:
+      - ../backend/.env
     environment:
       - UV_LINK_MODE=copy
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
-      - BUCKET_NAME=${BUCKET_NAME:-}
-      - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL:-}
       - DB_USERNAME=genai
       - DB_PASSWORD=genai123
       - DB_HOST=postgres

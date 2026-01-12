@@ -9,8 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-# Use because Next.js 15.0.3 officially supports React 19 RC,
-# but React 19 stable is compatible and works fine
+# Using React 19.0.0 stable with Next.js 15
 RUN npm ci
 
 # Copy the rest of the application code, except .env
