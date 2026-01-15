@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
 from app.core.logging import setup_logging
 from app.api.v1.routes import api_router
-from app.core.exceptions.http_exception import app_http_exception_handler 
-from app.utils.response_handler import validation_exception_handler, internal_exception_handler
+from app.core.exceptions.http_exception import app_http_exception_handler
+from app.utils.response_handler import ResponseHandler
 from fastapi.exceptions import RequestValidationError
 from app.core.exceptions.http_exception import AppHTTPException
 from loguru import logger
@@ -27,8 +27,10 @@ def create_application() -> FastAPI:
     )
 
     application.add_exception_handler(AppHTTPException, app_http_exception_handler)
-    application.add_exception_handler(RequestValidationError, validation_exception_handler)
-    application.add_exception_handler(Exception, internal_exception_handler)
+    application.add_exception_handler(
+        RequestValidationError, ResponseHandler.validation_error
+    )
+    application.add_exception_handler(Exception, ResponseHandler.internal_error)
     application.include_router(api_router, prefix=settings.API_V1_STR)
 
     return application
