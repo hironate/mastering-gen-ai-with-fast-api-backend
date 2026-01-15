@@ -1,7 +1,11 @@
 from typing import Optional, List
 
 from fastapi import Request
-from app.core.exceptions.http_exception import UnauthorizedException, ForbiddenException, NotFoundException
+from app.core.exceptions.http_exception import (
+    UnauthorizedException,
+    ForbiddenException,
+    NotFoundException,
+)
 
 from app.schemas.auth_schema import User
 from app.services.internal.auth_service import AuthService
@@ -24,21 +28,15 @@ def auth_required(roles: Optional[List[str]] = None):
         token = request.cookies.get(settings.ACCESS_TOKEN)
 
         if not token:
-            raise UnauthorizedException(
-                message="Not authenticated"
-            )
+            raise UnauthorizedException(message="Not authenticated")
 
         email = AuthService().verify_token(token)
         if not email:
-            raise UnauthorizedException(
-                message="Invalid or expired token"
-            )
+            raise UnauthorizedException(message="Invalid or expired token")
 
         user = UserRepository().get_user_by_email(email, includePassword=True)
         if user is None:
-            raise NotFoundException(
-                message="User not found"
-            )
+            raise NotFoundException(message="User not found")
 
         request.state.user = User.model_validate(user)
 

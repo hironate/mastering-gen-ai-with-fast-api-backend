@@ -1,17 +1,32 @@
 from .auth_schema import (
-    UserBase, UserCreate, UserResponse,
+    UserBase,
+    UserCreate,
+    UserResponse,
     User,
     LoginRequest,
-    PasswordUpdateRequest
+    PasswordUpdateRequest,
 )
 from .chat_schema import ChatRequest, ChatResponse
-from .files import AddFileRequest, GetFileRequest, PresignedUploadRequest, PresignedUploadResponse, PresignedDownloadRequest, PresignedDownloadResponse
+from .files import (
+    AddFileRequest,
+    PresignedUploadRequest,
+    PresignedUploadResponse,
+    PresignedDownloadRequest,
+    UserFileResponse,
+)
+
 __all__ = [
-    "UserBase", "UserCreate", "UserResponse",
+    "UserBase",
+    "UserCreate",
+    "UserResponse",
     "User",
     "LoginRequest",
-    "ChatRequest", "ChatResponse",
+    "ChatRequest",
+    "ChatResponse",
     "PasswordUpdateRequest",
-    "PresignedUploadRequest", "PresignedUploadResponse", "PresignedDownloadRequest", "PresignedDownloadResponse",
-    "AddFileRequest", "GetFileRequest"
+    "PresignedUploadRequest",
+    "PresignedUploadResponse",
+    "PresignedDownloadRequest",
+    "AddFileRequest",
+    "UserFileResponse",
 ]
