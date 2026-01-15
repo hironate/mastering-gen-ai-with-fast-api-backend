@@ -33,11 +33,15 @@ class PresignedDownloadRequest(BaseModel):
     fileKey: str
 
 
-class UserFileResponse(AddFileRequest):
+class UserFileResponse(BaseModel):
     id: int
     user_id: int
+    fileName: str = Field(..., alias="file_name")
+    fileType: str = Field(..., alias="file_type")
+    fileSize: Optional[int] = Field(None, alias="file_size")
+    fileKey: str = Field(..., alias="file_key")
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

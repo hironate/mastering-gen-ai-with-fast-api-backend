@@ -42,7 +42,6 @@ class ForbiddenException(AppHTTPException):
 
 class NotFoundException(AppHTTPException):
     def __init__(self, message="Not Found"):
-        logger.error(AppHTTPException.__str__(self))
         super().__init__(
             status_code=404, message=message, error_code="NOT_FOUND", title="Not Found"
         )
