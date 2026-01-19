@@ -1,4 +1,3 @@
-import os 
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -9,16 +8,17 @@ from alembic import context
 from app.config.settings import settings
 from app.db.session import Base
 
-from dotenv import load_dotenv
-load_dotenv()
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Use the computed DATABASE_URL from settings instead of environment variable
+DATABASE_URL = settings.DATABASE_URL
 
 if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL environment variable is not set")
+    raise RuntimeError(
+        "DATABASE_URL is not set. Check DB_USERNAME, DB_PASSWORD, DB_HOST, DB_NAME, and DB_PORT settings."
+    )
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
@@ -77,9 +77,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
