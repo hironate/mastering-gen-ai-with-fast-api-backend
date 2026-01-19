@@ -7,7 +7,7 @@ from loguru import logger
 
 from app.config.settings import settings
 from app.core.exceptions.http_exception import BadRequestException
-from app.utils.file.aws.file_constants import expiration_time, get_file_extension
+from app.utils.file import expiration_time, get_file_extension
 
 
 class S3Client:
@@ -57,7 +57,11 @@ class S3Client:
                 Params={"Bucket": self.bucket_name, "Key": key},
                 ExpiresIn=expiration,
             )
-            return presigned_url
+            return {
+                "presigned_url": presigned_url,
+                "key": key,
+                "bucket": self.bucket_name,
+            }
 
         except ClientError as e:
             logger.error(f"Error generating pre-signed download URL: {e}")

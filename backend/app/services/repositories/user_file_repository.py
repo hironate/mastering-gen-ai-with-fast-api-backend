@@ -1,60 +1,70 @@
-from typing import List, Optional
+from typing import Optional, List
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
-from loguru import logger
-
-from app.core.exceptions.http_exception import BadRequestException, NotFoundException
-from app.db.session import get_db
 from database.models import UserFile
+from app.schemas.files import UserFileCreate, UserFileUpdate
+from app.core.exceptions.http_exception import NotFoundException, BadRequestException
+from .base_repository import BaseRepository
 
 
-class UserFileRepository:
+class UserFileRepository(BaseRepository[UserFile, UserFileCreate, UserFileUpdate]):
     def __init__(self):
-        self._db_gen = get_db()
-        self.db = next(self._db_gen)
+        super().__init__(UserFile)
 
-    def __del__(self):
-        if hasattr(self, "_db_gen") and self._db_gen is not None:
-            try:
-                self._db_gen.close()
-            except Exception:
-                pass
+    def get_files_by_user_id(
+        self, db: Session, user_id: int, skip: int = 0, limit: int = 100
+    ) -> List[UserFile]:
+        """Get all files for a specific user with pagination."""
+        stmt = (
+            select(UserFile)
+            .where(UserFile.user_id == user_id)
+            .offset(skip)
+            .limit(limit)
+            .order_by(UserFile.created_at.desc())
+        )
+        result = db.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_file_by_id(self, id: int, user_id: int) -> Optional[UserFile]:
-        # Get user file by id.
-        try:
-            file = (
-                self.db.query(UserFile)
-                .filter(UserFile.id == id, UserFile.user_id == user_id)
-                .first()
-            )
-            return file
-            logger.info(f"File found in database: {file}")
-        except Exception as e:
-            logger.error(f"Failed to get file: {e}")
-            raise NotFoundException(message="Failed to get file") from e
+    def get_file_by_id(self, db: Session, id: int, user_id: int) -> Optional[UserFile]:
+        """Get file by ID with user authorization."""
+        stmt = select(UserFile).where(
+            UserFile.id == id,
+            UserFile.user_id == user_id,
+        )
+        result = db.execute(stmt)
+        file = result.scalar_one_or_none()
 
-    def get_file_by_key(self, key: str, user_id: int) -> Optional[UserFile]:
-        # Get user file by key.
-        try:
-            file = (
-                self.db.query(UserFile)
-                .filter(UserFile.key == key, UserFile.user_id == user_id)
-                .first()
-            )
-            return file
-        except Exception as e:
-            logger.error(f"Failed to get file: {e}")
-            raise NotFoundException(message="Failed to get file") from e
+        if not file:
+            raise NotFoundException(message="File not found in database")
+        return file
+
+    def get_file_by_key(
+        self, db: Session, key: str, user_id: int
+    ) -> Optional[UserFile]:
+        """Get file by key with user authorization."""
+        stmt = select(UserFile).where(
+            UserFile.key == key,
+            UserFile.user_id == user_id,
+        )
+        result = db.execute(stmt)
+        file = result.scalar_one_or_none()
+
+        if not file:
+            raise NotFoundException(message="File not found in database")
+        return file
 
     def create_file(
         self,
+        db: Session,
         user_id: int,
         type: str,
         name: str,
         key: str,
         size: Optional[int] = None,
     ) -> UserFile:
-        # Create a new user file.
+        """Create a new user file record."""
         try:
             user_file = UserFile(
                 user_id=user_id,
@@ -63,10 +73,48 @@ class UserFileRepository:
                 key=key,
                 size=size,
             )
-            self.db.add(user_file)
-            self.db.commit()
-            self.db.refresh(user_file)
-        except Exception as e:
-            raise BadRequestException(message="Failed to create file") from e
-        else:
+            db.add(user_file)
+            db.commit()
+            db.refresh(user_file)
             return user_file
+        except IntegrityError as e:
+            db.rollback()
+            raise BadRequestException(
+                message="File key already exists or invalid user ID"
+            ) from e
+        except Exception as e:
+            db.rollback()
+            raise BadRequestException(message="Failed to create file record") from e
+
+    def delete_file_by_key(self, db: Session, file_key: str, user_id: int) -> bool:
+        """Delete file by key with user authorization."""
+        file = self.get_file_by_key(db, file_key, user_id)
+        if not file:
+            return False
+
+        db.delete(file)
+        db.commit()
+        return True
+
+    def get_user_file_count(self, db: Session, user_id: int) -> int:
+        """Get total count of files for a user."""
+        from sqlalchemy import func
+
+        stmt = select(func.count(UserFile.id)).where(UserFile.user_id == user_id)
+        result = db.execute(stmt)
+        return result.scalar_one()
+
+    def get_user_total_storage(self, db: Session, user_id: int) -> int:
+        """Get total storage used by user in bytes."""
+        from sqlalchemy import func
+
+        stmt = select(func.sum(UserFile.size)).where(UserFile.user_id == user_id)
+        result = db.execute(stmt)
+        total = result.scalar_one()
+        return total if total is not None else 0
+
+    def file_key_exists(self, db: Session, file_key: str) -> bool:
+        """Check if file key already exists."""
+        stmt = select(UserFile.id).where(UserFile.key == file_key)
+        result = db.execute(stmt)
+        return result.scalar_one_or_none() is not None

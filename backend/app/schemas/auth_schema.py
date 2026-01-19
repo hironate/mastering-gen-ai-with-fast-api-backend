@@ -15,6 +15,13 @@ class UserCreate(UserBase):
     role: Role = Role.USER
 
 
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    name: Optional[str] = None
+    role: Optional[Role] = None
+    is_active: Optional[bool] = None
+
+
 class UserResponse(UserBase):
     id: int
     is_active: bool

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.utils.file.aws.file_constants import ALLOWED_MIME_TYPES, MAX_FILE_SIZE
+from app.utils.file import ALLOWED_MIME_TYPES, MAX_FILE_SIZE
 
 
 class PresignedUploadRequest(BaseModel):
@@ -45,3 +45,20 @@ class UserFileResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserFileCreate(BaseModel):
+    """Schema for creating a user file record"""
+
+    user_id: int
+    file_name: str
+    file_type: str
+    file_key: str
+    file_size: Optional[int] = None
+
+
+class UserFileUpdate(BaseModel):
+    """Schema for updating a user file record"""
+
+    file_name: Optional[str] = None
+    file_size: Optional[int] = None
