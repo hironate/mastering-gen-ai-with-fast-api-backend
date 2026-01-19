@@ -28,9 +28,18 @@ class FileService:
             logger.error(f"Failed to add file to database: {str(e)}")
             raise BadRequestException(message="Failed to add file to database") from e
 
-    def get_file(self, id: int, user_id: int):
+    def get_file_by_id(self, id: int, user_id: int):
         user_file = UserFileRepository().get_file_by_id(
             id=id,
+            user_id=user_id,
+        )
+        if not user_file:
+            raise NotFoundException(message="File not found")
+        return user_file
+
+    def get_file_by_key(self, key: str, user_id: int):
+        user_file = UserFileRepository().get_file_by_key(
+            key=key,
             user_id=user_id,
         )
         if not user_file:

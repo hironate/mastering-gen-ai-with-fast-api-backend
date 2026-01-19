@@ -19,10 +19,6 @@ class UserFileRepository:
             except Exception:
                 pass
 
-    def get_file_by_user_id(self, user_id: int) -> List[UserFile]:
-        # Get user files by user ID (one-to-many relationship).
-        return self.db.query(UserFile).filter(UserFile.user_id == user_id).all()
-
     def get_file_by_id(self, id: int, user_id: int) -> Optional[UserFile]:
         # Get user file by id.
         try:
@@ -33,6 +29,19 @@ class UserFileRepository:
             )
             return file
             logger.info(f"File found in database: {file}")
+        except Exception as e:
+            logger.error(f"Failed to get file: {e}")
+            raise NotFoundException(message="Failed to get file") from e
+
+    def get_file_by_key(self, key: str, user_id: int) -> Optional[UserFile]:
+        # Get user file by key.
+        try:
+            file = (
+                self.db.query(UserFile)
+                .filter(UserFile.key == key, UserFile.user_id == user_id)
+                .first()
+            )
+            return file
         except Exception as e:
             logger.error(f"Failed to get file: {e}")
             raise NotFoundException(message="Failed to get file") from e
