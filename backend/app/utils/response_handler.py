@@ -1,4 +1,5 @@
 from typing import Any, Optional
+
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -60,9 +61,6 @@ class ResponseHandler:
                 "status": "error",
                 "title": "Internal Server Error",
                 "message": str(exc),
-                "errors": {
-                    "path": request.url.path,
-                    "details": str(exc),
-                },
+                "errors": [{"message": str(exc)}],
             },
         )

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from app.utils.auth import (
+from app.utils.auth.auth import (
     get_password_hash,
     encrypt_token,
     decrypt_token,
@@ -11,11 +11,15 @@ from app.schemas.auth_schema import (
     UserCreate,
     LoginRequest,
     UserResponse,
-        User,
+    User,
 )
 from app.config.settings import settings
-from app.utils.auth import JWTError
-from app.core.exceptions.http_exception import UnauthorizedException, NotFoundException, BadRequestException
+from app.utils.auth.auth import JWTError
+from app.core.exceptions.http_exception import (
+    UnauthorizedException,
+    NotFoundException,
+    BadRequestException,
+)
 from datetime import datetime, timedelta
 
 
@@ -30,7 +34,7 @@ class AuthService:
 
         if existing_user:
             raise BadRequestException(message="Email already registered")
-        
+
         password_hash = get_password_hash(user_data.password)
 
         try:
@@ -38,7 +42,6 @@ class AuthService:
             return UserResponse.model_validate(user)
         except ValueError as e:
             raise BadRequestException(message=str(e))
-
 
     def login(self, login_data: LoginRequest) -> dict:
         """Authenticate user and create login session."""
@@ -57,20 +60,27 @@ class AuthService:
         self.user_repo.update_last_login(user_data.id)
         access_token = self.create_access_token(data={"sub": user_data.email})
         user_response = UserResponse.model_validate(user_data)
-        return {"user": user_response.model_dump(mode='json'), "access_token": access_token}
+        return {
+            "user": user_response.model_dump(mode="json"),
+            "access_token": access_token,
+        }
 
     def update_password(self, user: User, old_password: str, new_password: str) -> dict:
         """Update user's password."""
         if not verify_password(old_password, user.password_hash):
             raise UnauthorizedException(message="Invalid old password")
         if new_password == old_password:
-            raise BadRequestException(message="New password cannot be the same as the old password")
-            
+            raise BadRequestException(
+                message="New password cannot be the same as the old password"
+            )
+
         new_password_hash = get_password_hash(new_password)
         updated_user = self.user_repo.update_password(user.id, new_password_hash)
         return {"message": "Password updated successfully"}
 
-    def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None):
+    def create_access_token(
+        self, data: dict, expires_delta: Optional[timedelta] = None
+    ):
         """Create a JWT access token."""
         to_encode = data.copy()
         if expires_delta:
@@ -83,7 +93,6 @@ class AuthService:
         to_encode.update({"exp": expire})
 
         return encrypt_token(to_encode)
-
 
     def verify_token(self, token: str) -> Optional[str]:
         """Verify and decode a JWT token."""

@@ -1,11 +1,13 @@
-import boto3
-from botocore.exceptions import ClientError
-from app.config.settings import settings
-from loguru import logger
-from app.core.exceptions.http_exception import BadRequestException
 import time
 import uuid
-from app.utils.file_constants import get_file_extension
+
+import boto3
+from botocore.exceptions import ClientError
+from loguru import logger
+
+from app.config.settings import settings
+from app.core.exceptions.http_exception import BadRequestException
+from app.utils.file.aws.file_constants import expiration_time, get_file_extension
 
 
 class S3Client:
@@ -20,9 +22,9 @@ class S3Client:
         )
         self.bucket_name = settings.AWS_S3_BUCKET_NAME
 
-    def generate_presigned_url(self, file_type: str, expiration: int = 3600):
+    def generate_presigned_url(self, type: str, expiration: int = expiration_time):
         # """Generate a pre-signed URL for uploading a file to S3."""
-        extension = get_file_extension(file_type)
+        extension = get_file_extension(type)
         s3_file_key = (
             f"user/documents/{time.time()}-{uuid.uuid4()}{extension}"  # Unique S3 key
         )
@@ -32,7 +34,7 @@ class S3Client:
                 Params={
                     "Bucket": self.bucket_name,
                     "Key": s3_file_key,
-                    "ContentType": file_type,
+                    "ContentType": type,
                 },
                 ExpiresIn=expiration,
             )
@@ -47,12 +49,12 @@ class S3Client:
                 message=f"Error generating pre-signed upload URL: {e}"
             )
 
-    def generate_download_url(self, file_key: str, expiration: int = 3600):
+    def generate_download_url(self, key: str, expiration: int = expiration_time):
         # """Generate a pre-signed URL for downloading a file from S3."""
         try:
             presigned_url = self.s3_client.generate_presigned_url(
                 "get_object",
-                Params={"Bucket": self.bucket_name, "Key": file_key},
+                Params={"Bucket": self.bucket_name, "Key": key},
                 ExpiresIn=expiration,
             )
             return presigned_url

@@ -13,9 +13,11 @@ ALLOWED_MIME_TYPES = [
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]
 
-
 # File size limits (in bytes)
 MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
+
+# Expiration time for presigned URLs (in seconds)
+expiration_time = 3600
 
 # Mapping from MIME type to file extension
 FILE_TYPE_TO_EXTENSION = {
@@ -28,20 +30,20 @@ FILE_TYPE_TO_EXTENSION = {
 }
 
 
-def get_file_extension(file_type: str) -> str:
+def get_file_extension(type: str) -> str:
     """
-    Get file extension from MIME type.
+    Get extension from MIME type.
 
     Args:
-        file_type: MIME type string (e.g., "application/pdf")
+        type: MIME type string (e.g., "application/pdf")
 
     Returns:
-        File extension with dot prefix (e.g., ".pdf")
+        Extension with dot prefix (e.g., ".pdf")
 
     Raises:
-        ValueError: If file type is not in the mapping
+        ValueError: If type is not in the mapping
     """
-    extension = FILE_TYPE_TO_EXTENSION.get(file_type)
+    extension = FILE_TYPE_TO_EXTENSION.get(type)
     if extension is None:
-        raise ValueError(f"Unknown file type: {file_type}")
+        raise ValueError(f"Unknown file type: {type}")
     return extension

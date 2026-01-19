@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, func, Integer
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+
 from app.db.session import Base
 
 
@@ -9,10 +10,10 @@ class UserFile(Base):
     user_id = Column(
         Integer, ForeignKey("users.id"), nullable=False, index=True
     )  # one-to-many
-    file_key = Column(String, unique=True, nullable=False, index=True)
-    file_type = Column(String)  # txt, pdf
-    file_name = Column(String)
-    file_size = Column(Integer, nullable=True)
+    key = Column(String, unique=True, nullable=False, index=True)
+    type = Column(String)  # txt, pdf
+    name = Column(String)
+    size = Column(Integer, nullable=True)
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
