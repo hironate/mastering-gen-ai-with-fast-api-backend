@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
 
 from app.middlewares.auth_middleware import auth_required
-from app.schemas.auth_schema import LoginRequest, PasswordUpdateRequest, UserCreate
+from app.schemas.auth_schema import LoginRequest, PasswordUpdateRequest, UserCreate, UserResponse
 from app.services.internal import AuthService
 from app.db.session import get_db
 from app.utils.auth.cookie_config import delete_auth_cookie, set_auth_cookie
@@ -28,12 +28,11 @@ async def signup(body: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/update-password")
-@auth_required()
-async def update_password(request: Request, body: PasswordUpdateRequest):
+@auth_required() 
+async def update_password(request: Request, body: PasswordUpdateRequest, user: UserResponse, db: Session):
     """Update user's password."""
-    db = request.state.db
     result = auth_service.update_password(
-        db, request.state.user.id, body.old_password, body.new_password
+        db, user.id, body.old_password, body.new_password
     )
     return ResponseHandler().success_response(
         data=result, message="Password updated successfully"

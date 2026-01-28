@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/")
-@auth_required(["ADMIN"])
+@auth_required(roles=["ADMIN"])
 async def create_chat(
     request: Request, chat_request: ChatRequest = Depends(ChatRequest.as_form)
 ):
