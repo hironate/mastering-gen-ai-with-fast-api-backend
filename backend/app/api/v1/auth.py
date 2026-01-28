@@ -10,6 +10,7 @@ from app.utils.response_handler import ResponseHandler
 
 router = APIRouter()
 auth_service = AuthService()
+response_handler = ResponseHandler()
 
 
 @router.post("/signup")
@@ -20,7 +21,7 @@ async def signup(body: UserCreate, db: Session = Depends(get_db)):
         db, LoginRequest(email=body.email, password=body.password)
     )
 
-    response = ResponseHandler().success_response(
+    response = response_handler.success_response(
         data=login_response["user"], message="User created successfully"
     )
     set_auth_cookie(response, login_response["access_token"])
@@ -34,7 +35,7 @@ async def update_password(request: Request, body: PasswordUpdateRequest, user: U
     result = auth_service.update_password(
         db, user.id, body.old_password, body.new_password
     )
-    return ResponseHandler().success_response(
+    return response_handler.success_response(
         data=result, message="Password updated successfully"
     )
 
@@ -43,7 +44,7 @@ async def update_password(request: Request, body: PasswordUpdateRequest, user: U
 async def login(body: LoginRequest, db: Session = Depends(get_db)):
     """Login user and return access token."""
     result = auth_service.login(db, body)
-    response = ResponseHandler().success_response(
+    response = response_handler.success_response(
         data=result["user"], message="Login successful"
     )
     set_auth_cookie(response, result["access_token"])
@@ -54,7 +55,7 @@ async def login(body: LoginRequest, db: Session = Depends(get_db)):
 @auth_required()
 async def logout(request: Request):
     """Logout user."""
-    response = ResponseHandler().success_response(
+    response = response_handler.success_response(
         data=None, message="Logout successful"
     )
     delete_auth_cookie(response)

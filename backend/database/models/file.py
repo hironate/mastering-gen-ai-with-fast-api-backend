@@ -4,7 +4,7 @@ from app.db.session import Base
 
 
 class UserFile(Base):
-    __tablename__ = "user_files"
+    __tablename__ = "files"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(

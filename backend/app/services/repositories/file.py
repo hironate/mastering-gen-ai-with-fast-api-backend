@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from database.models import UserFile
 from app.schemas.files import UserFileCreate, UserFileUpdate
 from app.core.exceptions.http_exception import NotFoundException, BadRequestException
-from .base_repository import BaseRepository
+from .base import BaseRepository
 
 
 class UserFileRepository(BaseRepository[UserFile, UserFileCreate, UserFileUpdate]):

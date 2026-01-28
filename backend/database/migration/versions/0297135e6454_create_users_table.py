@@ -10,7 +10,6 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from app.utils.db.enum import Role
 
 # revision identifiers, used by Alembic.
 revision: str = "0297135e6454"
@@ -18,8 +17,8 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
+
 
     op.create_table(
         "users",
@@ -28,7 +27,10 @@ def upgrade() -> None:
         sa.Column("password_hash", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=True),
         sa.Column(
-            "role", sa.Enum(Role, name="role"), nullable=False, default=Role.USER
+            "role",
+            sa.Enum("USER", "ADMIN", name="user_role"),
+            nullable=False,
+            server_default="USER"
         ),
         sa.Column("is_active", sa.Boolean(), default=True),
         sa.Column("last_login_at", sa.DateTime(timezone=True), nullable=True),
@@ -49,4 +51,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table("users")
+    op.drop_table("users", schema="public")
+    op.execute("DROP TYPE IF EXISTS public.user_role")

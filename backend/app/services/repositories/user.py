@@ -6,7 +6,7 @@ from datetime import datetime
 
 from app.schemas.auth_schema import UserCreate, UserUpdate
 from database.models import User
-from .base_repository import BaseRepository
+from .base import BaseRepository
 
 
 class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):

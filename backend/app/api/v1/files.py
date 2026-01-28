@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 file_service = FileService()
 s3_client = S3Client()
+response_handler = ResponseHandler()
 
 
 @router.post("")
@@ -30,7 +31,7 @@ async def add_file(request: Request, body: AddFileRequest, user: UserResponse, d
         key=body.key,
         size=body.size,
     )
-    return ResponseHandler().success_response(
+    return response_handler.success_response(
         data=user_file_response.model_dump(mode="json"),
         message="File added to database successfully",
     )
@@ -44,7 +45,7 @@ async def get_file(request: Request, id: int, user: UserResponse, db: Session):
     file_response = file_service.get_file_by_id(
         db=db, id=id, user_id=user.id,
     )
-    return ResponseHandler().success_response(
+    return response_handler.success_response(
         data=file_response.model_dump(mode="json"), message="File found successfully"
     )
 
@@ -53,7 +54,7 @@ async def get_file(request: Request, id: int, user: UserResponse, db: Session):
 @auth_required()
 async def generate_presigned_url(request: Request, body: PresignedUploadRequest):
     response = s3_client.generate_presigned_url(type=body.type)
-    return ResponseHandler().success_response(
+    return response_handler.success_response(
         data=response, message="Presigned URL generated successfully"
     )
 
@@ -71,6 +72,6 @@ async def generate_download_url(request: Request, user: UserResponse, body: Pres
     if not response:
         raise BadRequestException(message="Failed to generate download URL")
 
-    return ResponseHandler().success_response(
+    return response_handler.success_response(
         data=response, message="Download URL generated successfully"
     )
