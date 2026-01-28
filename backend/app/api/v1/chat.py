@@ -9,10 +9,11 @@ from app.services.prompts.chat import prepare_chat_prompt
 from app.services.prompts.assistant import prepare_assistant_prompt
 
 router = APIRouter()
+response_handler = ResponseHandler()
 
 
 @router.post("/")
-@auth_required(["ADMIN"])
+@auth_required(roles=["ADMIN"])
 async def create_chat(
     request: Request, chat_request: ChatRequest = Depends(ChatRequest.as_form)
 ):
@@ -36,7 +37,7 @@ async def create_chat(
             )
 
         ai_response = llm_provider.generate_response(messages)
-        return ResponseHandler().success_response(
+        return response_handler.success_response(
             data={"response": ai_response},
             message="Chat response generated successfully",
         )

@@ -58,11 +58,13 @@ source .venv/bin/activate
 The project uses `uv` for fast dependency management. Install dependencies using one of the following methods:
 
 **Using uv (recommended):**
+
 ```bash
 uv sync
 ```
 
 **Using pip:**
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -114,11 +116,13 @@ The database will be set up automatically when using Docker Compose.
 ### 6. Run the Application
 
 **Local Development:**
+
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Using uv:**
+
 ```bash
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
@@ -152,6 +156,7 @@ docker-compose down -v
 ```
 
 The application will automatically:
+
 - Install dependencies using `uv sync`
 - Start the FastAPI server with hot-reload enabled
 - Mount your local code for live updates
@@ -174,6 +179,7 @@ docker run -d \
 ```
 
 **Production Considerations:**
+
 - Use environment variables or secrets management (AWS Secrets Manager, HashiCorp Vault)
 - Set `ENVIRONMENT=production` in your `.env` file
 - Use a reverse proxy (nginx, Traefik) in front of the application
@@ -242,7 +248,7 @@ backend/
 │   │   │   ├── assistant.py
 │   │   │   └── chat.py
 │   │   └── repositories/         # Data access layer
-│   │       └── user_repository.py
+│   │       └── user.py
 │   ├── utils/                    # Utility functions
 │   │   ├── auth.py               # Authentication utilities
 │   │   ├── enum.py               # Enumerations
@@ -275,11 +281,13 @@ backend/
 ## Component Architecture
 
 ### API Layer (`app/api/`)
+
 - **Endpoints**: Handle HTTP requests and responses
 - **Routes**: Register and organize API routes
 - **Versioning**: API versioning support (v1)
 
 ### Service Layer (`app/services/`)
+
 - **Internal Services**: Business logic (e.g., `auth_service.py`)
 - **LLM Services**: Abstracted LLM provider integration
   - **Factory Pattern**: `factory.py` for provider selection
@@ -288,20 +296,24 @@ backend/
 - **Prompts**: LLM prompt templates and management
 
 ### Core Layer (`app/core/`)
+
 - **Exception Handling**: Custom exceptions and handlers
 - **Logging**: Centralized logging configuration
 - **Settings**: Application configuration management
 
 ### Database Layer
+
 - **Models**: SQLAlchemy ORM models (`database/models/`)
 - **Migrations**: Alembic database migrations (`database/migration/`)
 - **Session Management**: Database connection pooling
 
 ### Middleware Layer (`app/middlewares/`)
+
 - **Authentication Middleware**: JWT token validation
 - **Base Decorators**: Reusable decorators for common functionality
 
 ### Utilities (`app/utils/`)
+
 - **Authentication**: JWT token generation and validation
 - **File Handling**: File upload and processing
 - **Response Handling**: Standardized API responses
@@ -417,6 +429,7 @@ We welcome contributions! Please follow these guidelines:
 ### Reporting Issues
 
 When reporting issues, please include:
+
 - Description of the issue
 - Steps to reproduce
 - Expected behavior
@@ -437,6 +450,7 @@ This project follows PEP 8 style guidelines with some modifications:
 ### Style Rules
 
 1. **Imports**: Use absolute imports, sort with isort
+
    ```python
    from app.config.settings import settings
    from app.core.logging import setup_logging
@@ -449,19 +463,21 @@ This project follows PEP 8 style guidelines with some modifications:
    - Private: Prefix with `_`
 
 3. **Type Hints**: Use type hints for function parameters and return types
+
    ```python
    def get_user(user_id: int) -> User:
        ...
    ```
 
 4. **Docstrings**: Use Google-style docstrings for classes and functions
+
    ```python
    def process_data(data: dict) -> dict:
        """Process the input data.
-       
+
        Args:
            data: Input data dictionary
-           
+
        Returns:
            Processed data dictionary
        """
@@ -489,9 +505,10 @@ isort app/          # Sort imports
 ### Adding a New LLM Provider
 
 1. Create a new provider class in `app/services/llm/providers/`:
+
    ```python
    from app.services.llm.base import BaseLLMProvider
-   
+
    class NewProvider(BaseLLMProvider):
        async def generate(self, prompt: str) -> str:
            # Implementation
@@ -545,28 +562,28 @@ The following environment variables are required for the application to run:
 
 ### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:password@localhost:5432/dbname` |
-| `JWT_SECRET_KEY` | Secret key for JWT token signing | `your-super-secret-key-here` |
-| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
-| `OPENAI_ORGANIZATION` | OpenAI organization ID | `org-...` |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret access key | `...` |
+| Variable                | Description                      | Example                                            |
+| ----------------------- | -------------------------------- | -------------------------------------------------- |
+| `DATABASE_URL`          | PostgreSQL connection string     | `postgresql://user:password@localhost:5432/dbname` |
+| `JWT_SECRET_KEY`        | Secret key for JWT token signing | `your-super-secret-key-here`                       |
+| `OPENAI_API_KEY`        | OpenAI API key                   | `sk-...`                                           |
+| `OPENAI_ORGANIZATION`   | OpenAI organization ID           | `org-...`                                          |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret access key            | `...`                                              |
 
 ### Optional Variables
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `ENVIRONMENT` | Application environment | `development` | `production`, `development`, `testing` |
-| `API_V1_STR` | API version prefix | `/api/v1` | `/api/v1` |
-| `PROJECT_NAME` | Project name | `FastAPI Project` | `My FastAPI App` |
-| `BACKEND_CORS_ORIGINS` | Allowed CORS origins | `["http://localhost:3000"]` | `["http://localhost:3000","https://example.com"]` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT token expiration time | `30` | `60` |
-| `ACCESS_TOKEN` | Cookie name for access token | `access_token` | `access_token` |
-| `AWS_ACCESS_KEY_ID` | AWS access key ID | `your_default_access_key_id` | `AKIA...` |
-| `AWS_REGION` | AWS region | `us-east-1` | `us-west-2` |
-| `AWS_S3_BUCKET_NAME` | S3 bucket name | `your-s3-bucket-name` | `my-bucket` |
-| `AWS_ENDPOINT_URL` | AWS endpoint URL (for local testing) | `` | `http://localhost:4566` |
+| Variable                      | Description                          | Default                      | Example                                           |
+| ----------------------------- | ------------------------------------ | ---------------------------- | ------------------------------------------------- |
+| `ENVIRONMENT`                 | Application environment              | `development`                | `production`, `development`, `testing`            |
+| `API_V1_STR`                  | API version prefix                   | `/api/v1`                    | `/api/v1`                                         |
+| `PROJECT_NAME`                | Project name                         | `FastAPI Project`            | `My FastAPI App`                                  |
+| `BACKEND_CORS_ORIGINS`        | Allowed CORS origins                 | `["http://localhost:3000"]`  | `["http://localhost:3000","https://example.com"]` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT token expiration time            | `30`                         | `60`                                              |
+| `ACCESS_TOKEN`                | Cookie name for access token         | `access_token`               | `access_token`                                    |
+| `AWS_ACCESS_KEY_ID`           | AWS access key ID                    | `your_default_access_key_id` | `AKIA...`                                         |
+| `AWS_REGION`                  | AWS region                           | `us-east-1`                  | `us-west-2`                                       |
+| `AWS_S3_BUCKET_NAME`          | S3 bucket name                       | `your-s3-bucket-name`        | `my-bucket`                                       |
+| `AWS_ENDPOINT_URL`            | AWS endpoint URL (for local testing) | ``                           | `http://localhost:4566`                           |
 
 ### Environment File Setup
 
@@ -610,9 +627,9 @@ AWS_ENDPOINT_URL=
 ### Loading Environment Variables
 
 The application uses `pydantic-settings` to load environment variables. Variables are loaded from:
+
 1. System environment variables
 2. `.env` file in the project root
 3. Default values (if defined in `Settings` class)
 
 Variables are case-sensitive and must match the exact names defined in `app/config/settings.py`.
-

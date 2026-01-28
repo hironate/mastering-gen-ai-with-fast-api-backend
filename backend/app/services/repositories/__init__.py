@@ -1,3 +1,3 @@
-from .user_repository import UserRepository
-
-__all__ = ["UserRepository"]
+from .user import UserRepository
+from .file import UserFileRepository
+__all__ = ["UserRepository", "UserFileRepository"]
