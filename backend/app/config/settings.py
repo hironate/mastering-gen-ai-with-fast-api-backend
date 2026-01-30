@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     OPENAI_ORGANIZATION: str
 
+    # Langfuse (optional - LLM observability; omit or leave empty to disable)
+    LANGFUSE_PUBLIC_KEY: Optional[str] = None
+    LANGFUSE_SECRET_KEY: Optional[str] = None
+
     # database
     DB_USERNAME: str = "genai"
     DB_PASSWORD: str = "genai123"

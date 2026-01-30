@@ -1,11 +1,13 @@
 from pydantic import BaseModel, field_validator
 from fastapi import Form, UploadFile, File
 from typing import Optional
+from app.utils.models import get_available_models
+from app.utils.file import ALLOWED_MIME_TYPES
 
 class ChatRequest(BaseModel):
     prompt: str
     data: str
-    model: str = "openai-gpt-4o"
+    model: str = "gpt-4o"
     files: Optional[list[UploadFile]] = None
     stream: bool = True
 
@@ -14,7 +16,7 @@ class ChatRequest(BaseModel):
         cls,
         prompt: str = Form(...),
         data: str = Form(...),
-        model: str = Form("openai-gpt-4o"),
+        model: str = Form("gpt-4o"),
         files: list[UploadFile] = None,
         stream: bool = Form(True)
     ):
@@ -28,7 +30,7 @@ class ChatRequest(BaseModel):
 
     @field_validator('model')
     def validate_model(cls, value):
-        allowed_models = ["bedrock-claude", "openai-gpt-4o"]
+        allowed_models = get_available_models()
         if value not in allowed_models:
             raise ValueError(f"Model must be one of {allowed_models}")
         return value
@@ -36,7 +38,7 @@ class ChatRequest(BaseModel):
     @field_validator('files')
     def validate_file_type(cls, files):
         if files:
-            allowed_types = ['image/jpeg', 'image/png', 'text/plain', 'application/pdf']
+            allowed_types = ALLOWED_MIME_TYPES
             for file in files:
                 content_type = file.content_type
                 if content_type not in allowed_types:
