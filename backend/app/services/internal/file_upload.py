@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from loguru import logger
 
 from app.core.exceptions.http_exception import BadRequestException, NotFoundException
-from app.services.repositories.user_file_repository import UserFileRepository
+from app.services.repositories.file import UserFileRepository
 from app.schemas.files import UserFileResponse
 from app.utils.orm import orm_to_pydantic, orm_list_to_pydantic
 
@@ -50,7 +50,7 @@ class FileService:
             raise NotFoundException(message="File not found")
         return orm_to_pydantic(file_orm, UserFileResponse)
 
-    def get_user_files(
+    def get_files(
         self,
         db: Session,
         user_id: int,

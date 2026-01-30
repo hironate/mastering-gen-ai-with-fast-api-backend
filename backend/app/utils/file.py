@@ -12,8 +12,6 @@ ALLOWED_MIME_TYPES = [
     "application/doc",
     "application/docx",
     "text/plain",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]
 
 # File size limits (in bytes)
@@ -27,9 +25,7 @@ FILE_TYPE_TO_EXTENSION = {
     "application/pdf": ".pdf",
     "application/doc": ".doc",
     "application/docx": ".docx",
-    "application/msword": ".doc",
     "text/plain": ".txt",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
 }
 
 

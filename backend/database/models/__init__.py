@@ -1,4 +1,4 @@
 from .user import User
-from .user_file import UserFile 
+from .file import Files 
 
-__all__ = ["User", "UserFile"]
+__all__ = ["User", "Files"]

@@ -3,8 +3,8 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from app.db.session import Base
 
 
-class UserFile(Base):
-    __tablename__ = "user_files"
+class Files(Base):
+    __tablename__ = "files"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(

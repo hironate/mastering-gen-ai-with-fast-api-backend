@@ -1,4 +1,4 @@
-"""create user Files table
+"""create files table
 
 Revision ID: dfdbe9975fa7
 Revises: 0297135e6454
@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table(
-        "user_files",
+        "files",
         sa.Column("id", sa.Integer(), nullable=False, primary_key=True),
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id"), nullable=False),
         sa.Column("key", sa.String(), nullable=False),
@@ -42,12 +42,12 @@ def upgrade() -> None:
         ),
     )
     op.create_index(
-        op.f("ix_user_files_user_id"), "user_files", ["user_id"], unique=False
+        op.f("ix_files_user_id"), "files", ["user_id"], unique=False
     )
-    op.create_index(op.f("ix_user_files_key"), "user_files", ["key"], unique=True)
+    op.create_index(op.f("ix_files_key"), "files", ["key"], unique=True)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_user_files_key"), table_name="user_files")
-    op.drop_index(op.f("ix_user_files_user_id"), table_name="user_files")
-    op.drop_table("user_files")
+    op.drop_index(op.f("ix_files_key"), table_name="files")
+    op.drop_index(op.f("ix_files_user_id"), table_name="files")
+    op.drop_table("files")
